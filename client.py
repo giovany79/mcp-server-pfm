@@ -16,13 +16,12 @@ server_params = StdioServerParameters(
     env=None,
 )
 
-def call_llm(prompt, functions):
-    token = os.getenv("GITHUB_TOKEN")  # Read token from environment variable
+def call_llm(messages, functions):
+    token = os.getenv("GITHUB_TOKEN")
     if not token:
         raise ValueError("GITHUB_TOKEN environment variable is not set")
     
     endpoint = "https://models.inference.ai.azure.com"
-
     model_name = "gpt-4o"
 
     client = ChatCompletionsClient(
@@ -32,18 +31,9 @@ def call_llm(prompt, functions):
 
     print("CALLING LLM")
     response = client.complete(
-        messages=[
-            {
-            "role": "system",
-            "content": "You are a helpful assistant.",
-            },
-            {
-            "role": "user",
-            "content": prompt,
-            },
-        ],
+        messages=messages,
         model=model_name,
-        tools = functions,
+        tools=functions,
         temperature=1.,
         max_tokens=1000,
         top_p=1.    
@@ -58,9 +48,14 @@ def call_llm(prompt, functions):
             print("TOOL: ", tool_call)
             name = tool_call.function.name
             args = json.loads(tool_call.function.arguments)
-            functions_to_call.append({ "name": name, "args": args })
+            functions_to_call.append({ "name": name, "args": args, "id": tool_call.id })
 
-    return functions_to_call
+    return functions_to_call, response_message
+
+def call_llm_final(messages, functions):
+    # Reuse call_llm but just return content
+    _, response_message = call_llm(messages, functions)
+    return response_message.content
 
 def convert_to_llm_tool(tool):
     tool_schema = {
@@ -85,38 +80,75 @@ async def run():
         ) as session:
             await session.initialize()
 
-            resources = await session.list_resources()
-            print("LISTING RESOURCES")
-            for resource in resources:
-                print("Resource: ", resource)
-
+            # Discover capabilities
             tools = await session.list_tools()
-            print("LISTING TOOLS")
-            for tool in tools.tools:
-                print("Tool: ", tool.name) 
-
-            print("READING RESOURCE")
-            content, mime_type = await session.read_resource("greeting://hello")  
-
-            print("CALL TOOL")
-            result = await session.call_tool("add", arguments={"x": 17, "y": 7})
-            print(result.content)
-
-            functions = []
-
-            for tool in tools.tools:
-                print("Tool: ", tool.name)
-                print("Tool", tool.inputSchema["properties"])
-                functions.append(convert_to_llm_tool(tool))
             
-            prompt = "Add 2 to 20"
+            # Prepare tools for LLM
+            llm_tools = [convert_to_llm_tool(tool) for tool in tools.tools]
+            print(f"Connected to MCP Server. Available tools: {[t.name for t in tools.tools]}")
+            
+            # Interactive loop
+            while True:
+                try:
+                    user_input = input("\nQuery (or 'quit' to exit): ")
+                    if user_input.lower() in ['quit', 'exit']:
+                        break
+                        
+                    # 1. Call LLM with user query
+                    messages = [
+                        {
+                            "role": "system",
+                            "content": "You are a helpful financial assistant. Use the provided tools to analyze the user's financial data. Always summarize the results found by the tools."
+                        },
+                        {
+                            "role": "user",
+                            "content": user_input
+                        }
+                    ]
+                    
+                    # Initial call to get tool calls
+                    functions_to_call, original_response = call_llm(messages, llm_tools)
+                    
+                    # Loop while the LLM wants to call tools
+                    while functions_to_call:
+                        # Add assistant's message (with tool calls) to history
+                        messages.append({
+                            "role": "assistant",
+                            "tool_calls": original_response.tool_calls
+                        })
+                        
+                        for f in functions_to_call:
+                            print(f"Executing tool: {f['name']} with args: {f['args']}")
+                            
+                            try:
+                                result = await session.call_tool(f["name"], arguments=f["args"])
+                                result_content = result.content[0].text if result.content else str(result)
+                                
+                                # Add tool result to messages
+                                messages.append({
+                                    "role": "tool",
+                                    "tool_call_id": f["id"],
+                                    "content": result_content
+                                })
+                            except Exception as e:
+                                print(f"Error executing tool {f['name']}: {e}")
+                                messages.append({
+                                    "role": "tool",
+                                    "tool_call_id": f["id"],
+                                    "content": f"Error: {str(e)}"
+                                })
+                        
+                        # Call LLM again with tool outputs
+                        # It might return MORE tool calls or the final answer
+                        functions_to_call, original_response = call_llm(messages, llm_tools)
+                    
+                    # No more tool calls, print final response
+                    print("\nAssistant:", original_response.content)
 
-            functions_to_call = call_llm(prompt, functions)
-
-            for f in functions_to_call:
-                result = await session.call_tool(f["name"], arguments=f["args"])
-                print("TOOLS result: ", result.content)
-              
+                except KeyboardInterrupt:
+                    break
+                except Exception as e:
+                    print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     import asyncio

@@ -83,7 +83,7 @@ def calculate_totals(year: Optional[int] = None, month: Optional[int] = None, ca
     }
 
 @mcp.tool()
-def list_transactions(limit: int = 10, category: Optional[str] = None, start_date: Optional[str] = None) -> str:
+def list_transactions(limit: int = 10, category: Optional[str] = None, start_date: Optional[str] = None, year: Optional[int] = None, month: Optional[int] = None) -> str:
     """
     List individual transactions matching criteria.
     
@@ -91,8 +91,16 @@ def list_transactions(limit: int = 10, category: Optional[str] = None, start_dat
         limit: Max number of transactions to return (default 10).
         category: Filter by category name.
         start_date: Filter transactions on or after this date (format YYYY-MM-DD).
+        year: Filter by specific year.
+        month: Filter by specific month.
     """
     df = load_data()
+    
+    if year:
+        df = df[df['Date'].dt.year == year]
+    
+    if month:
+        df = df[df['Date'].dt.month == month]
     
     if start_date:
         start_dt = pd.to_datetime(start_date)

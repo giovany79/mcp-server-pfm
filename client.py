@@ -95,10 +95,31 @@ async def run():
                         break
                         
                     # 1. Call LLM with user query
+                    # Provide the list of valid categories for better mapping
+                    valid_categories = [
+                        'health', 'pasive incomes', 'solidarity', 'entertainment', 'food', 
+                        'restaurant', 'vehicle', 'education', 'loan', 'parents', 'public services', 
+                        'other', 'internet help', 'salary', 'Saving', 'pension', 'Taxes', 
+                        'personal presentation', 'home', 'gift', 'imprevistos', 'clothes', 'pet'
+                    ]
+                    
+                    system_prompt = (
+                        "You are a helpful financial assistant. Use the provided tools to analyze the user's financial data. "
+                        "Always summarize the results found by the tools.\n\n"
+                        "IMPORTANT: The database uses the following categories in ENGLISH:\n"
+                        f"{', '.join(valid_categories)}.\n"
+                        "If the user asks in Spanish (or any other language), you MUST translate the category to the closest match "
+                        "in the English list above when calling the tools. "
+                        "Example: 'comida' -> 'food' or 'restaurant', 'transporte' -> 'vehicle'.\n\n"
+                        "TOOL USAGE GUIDELINES:\n"
+                        "1. When listing transactions for a specific month/year, ALWAYS use the 'year' and 'month' parameters of 'list_transactions' instead of 'start_date'. This prevents future data from interfering (e.g. 2026 data appearing when asking for 2025).\n"
+                        "2. The default limit is 10. If the user asks for 'all' transactions or implies a full list, set the 'limit' parameter to a higher value (e.g., 50 or 100) to ensure complete results."
+                    )
+
                     messages = [
                         {
                             "role": "system",
-                            "content": "You are a helpful financial assistant. Use the provided tools to analyze the user's financial data. Always summarize the results found by the tools."
+                            "content": system_prompt
                         },
                         {
                             "role": "user",

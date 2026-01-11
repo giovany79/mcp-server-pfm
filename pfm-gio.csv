@@ -1,4 +1,4 @@
-﻿Description;Income/expensive; Amount ;Category;Date
+Description;Income/expensive;Amount;Category;Date
 gotas ojos santi;expensive; $100.500 ;health;2025-01-01 00:00:00
 arriendo;income; $1.000.000 ;pasive incomes;2025-01-01 00:00:00
 papa Diana;expensive; $100.000 ;solidarity;2025-01-01 00:00:00
@@ -1235,71 +1235,70 @@ descuento solidaridad;expensive; $67.720 ;Taxes;2025-10-01 00:00:00
 mutuocolombia;expensive; $176.434 ;Saving;2025-10-01 00:00:00
 afc;expensive; $180.000 ;Saving;2025-10-01 00:00:00
 retefuente;expensive; $895.000 ;Taxes;2025-10-01 00:00:00
-mercado exito;expensive; $750.000 ;food;1/10/25 0:00
-cel Diana;expensive; $26.791 ;public services;1/10/25 0:00
-gasoline;expensive; $189.233 ;vehicle;1/10/25 0:00
-public services;expensive; $100.000 ;parents;1/10/25 0:00
-public services;expensive; $565.964 ;public services;1/10/25 0:00
-Amazon prime;expensive; $24.900 ;entertainment;1/10/25 0:00
-seguro del carro;expensive; $2.796.135 ;vehicle;1/10/25 0:00
-Uber;expensive; $13.000 ;vehicle;1/10/25 0:00
-Uber;expensive; $18.286 ;vehicle;1/10/25 0:00
-uber;expensive; $16.467 ;vehicle;1/10/25 0:00
-uber;expensive; $11.619 ;vehicle;1/10/25 0:00
-uber;expensive; $24.167 ;vehicle;1/10/25 0:00
-uber;expensive; $21.647 ;vehicle;1/10/25 0:00
-Gimnasio mensualidad;expensive; $100.000 ;health;1/10/25 0:00
-donacion iglesia;expensive; $50.000 ;solidarity;1/10/25 0:00
-paletas;expensive; $13.000 ;entertainment;1/10/25 0:00
-parking;expensive; $5.000 ;vehicle;1/10/25 0:00
-restauran cubano santi;expensive; $45.000 ;restaurant;1/10/25 0:00
-menu;expensive; $40.600 ;restaurant;1/10/25 0:00
-pollo sofi;expensive; $23.100 ;restaurant;1/10/25 0:00
-cartas sofi;expensive; $10.000 ;entertainment;1/10/25 0:00
-cartas nia;expensive; $22.000 ;entertainment;1/10/25 0:00
-saco santi;expensive; $360.000 ;other;1/10/25 0:00
-gimnasia;expensive; $372.000 ;education;1/10/25 0:00
-apartamento impuestos y administracion;expensive; $1.007.000 ;loan;1/10/25 0:00
-Dona janeth;expensive; $50.000 ;home;1/10/25 0:00
-declaracion;expensive; $130.000 ;Taxes;1/10/25 0:00
-caja fuerte;expensive; $70.000 ;other;1/10/25 0:00
-lulu;expensive; $50.000 ;other;1/10/25 0:00
-sofia algo;expensive; $20.000 ;education;1/10/25 0:00
-medicamentos lulu;expensive; $16.000 ;other;1/10/25 0:00
-hevos;expensive; $20.000 ;food;1/10/25 0:00
-carne;expensive; $40.000 ;food;1/10/25 0:00
-amigo secreto sofi;expensive; $30.000 ;education;1/10/25 0:00
-dona;expensive; $89.500 ;education;1/10/25 0:00
-medicamentos sofi;expensive; $50.000 ;health;1/10/25 0:00
-lavada carro;expensive; $25.000 ;vehicle;2/10/25 0:00
-supermercado pan y leche;expensive; $51.140 ;food;2/10/25 0:00
-gimnasia sofi;expensive; $20.000 ;education;2/10/25 0:00
-transferencia nequi Diana;expensive; $40.000 ;food;2/10/25 2:00
-transferencia;expensive; $25.000 ;food;1/10/25 0:00
-carne y gaseosa;expensive; $30.000 ;food;1/10/25 0:00
-perro santi;expensive; $17.000 ;restaurant;1/10/25 0:00
-Remedio quemadurasn refrescante;expensive; $30.000 ;health;5/10/25 0:00
-musican trovadores;expensive; $217.000 ;entertainment;5/10/25 0:00
-finca santafe;expensive; $540.000 ;entertainment;5/10/25 0:00
-peajes santafe;expensive; $47.400 ;vehicle;5/10/25 0:00
-exito san jeronimo;expensive; $44.390 ;entertainment;5/10/25 0:00
-sepillos santafe;expensive; $40.000 ;entertainment;5/10/25 0:00
-fruta san jeronimo;expensive; $10.000 ;entertainment;5/10/25 0:00
-recarga extintor y kit carretera;expensive; $40.000 ;vehicle;5/10/25 0:00
-Emi parents;expensive; $88.000 ;health;5/10/25 0:00
-almuerzos santafe;expensive; $48.000 ;restaurant;6/10/25 0:00
-ahorro sofi;expensive; $20.000 ;other;6/10/25 0:00
-gimnasia sofi mecato;expensive; $10.000 ;education;6/10/25 0:00
-parqueadero gimnasia sofi;expensive; $50.000 ;vehicle;6/10/25 0:00
-flypass;expensive; $6.700 ;vehicle;8/10/25 0:00
-flypass;expensive; $4.500 ;vehicle;8/10/25 0:00
-huevos;expensive; $20.000 ;food;8/10/25 0:00
-sodas;expensive; $10.000 ;food;8/10/25 0:00
-algos sofi;expensive;;;
-agua sofi;expensive; $2.400 ;education;14/10/25 0:00
-algo santi;expensive; $10.000 ;education;14/10/25 0:00
-helado sofi;expensive; $10.000 ;entertainment;14/10/25 0:00
-pago movistar internet;expensive; $101.990 ;public services;14/10/25 0:00
+mercado exito;expensive; $750.000 ;food;2025-10-01 00:00:00
+cel Diana;expensive; $26.791 ;public services;2025-10-01 00:00:00
+gasoline;expensive; $189.233 ;vehicle;2025-10-01 00:00:00
+public services;expensive; $100.000 ;parents;2025-10-01 00:00:00
+public services;expensive; $565.964 ;public services;2025-10-01 00:00:00
+Amazon prime;expensive; $24.900 ;entertainment;2025-10-01 00:00:00
+seguro del carro;expensive; $2.796.135 ;vehicle;2025-10-01 00:00:00
+Uber;expensive; $13.000 ;vehicle;2025-10-01 00:00:00
+Uber;expensive; $18.286 ;vehicle;2025-10-01 00:00:00
+uber;expensive; $16.467 ;vehicle;2025-10-01 00:00:00
+uber;expensive; $11.619 ;vehicle;2025-10-01 00:00:00
+uber;expensive; $24.167 ;vehicle;2025-10-01 00:00:00
+uber;expensive; $21.647 ;vehicle;2025-10-01 00:00:00
+Gimnasio mensualidad;expensive; $100.000 ;health;2025-10-01 00:00:00
+donacion iglesia;expensive; $50.000 ;solidarity;2025-10-01 00:00:00
+paletas;expensive; $13.000 ;entertainment;2025-10-01 00:00:00
+parking;expensive; $5.000 ;vehicle;2025-10-01 00:00:00
+restauran cubano santi;expensive; $45.000 ;restaurant;2025-10-01 00:00:00
+menu;expensive; $40.600 ;restaurant;2025-10-01 00:00:00
+pollo sofi;expensive; $23.100 ;restaurant;2025-10-01 00:00:00
+cartas sofi;expensive; $10.000 ;entertainment;2025-10-01 00:00:00
+cartas nia;expensive; $22.000 ;entertainment;2025-10-01 00:00:00
+saco santi;expensive; $360.000 ;other;2025-10-01 00:00:00
+gimnasia;expensive; $372.000 ;education;2025-10-01 00:00:00
+apartamento impuestos y administracion;expensive; $1.007.000 ;loan;2025-10-01 00:00:00
+Dona janeth;expensive; $50.000 ;home;2025-10-01 00:00:00
+declaracion;expensive; $130.000 ;Taxes;2025-10-01 00:00:00
+caja fuerte;expensive; $70.000 ;other;2025-10-01 00:00:00
+lulu;expensive; $50.000 ;other;2025-10-01 00:00:00
+sofia algo;expensive; $20.000 ;education;2025-10-01 00:00:00
+medicamentos lulu;expensive; $16.000 ;other;2025-10-01 00:00:00
+hevos;expensive; $20.000 ;food;2025-10-01 00:00:00
+carne;expensive; $40.000 ;food;2025-10-01 00:00:00
+amigo secreto sofi;expensive; $30.000 ;education;2025-10-01 00:00:00
+dona;expensive; $89.500 ;education;2025-10-01 00:00:00
+medicamentos sofi;expensive; $50.000 ;health;2025-10-01 00:00:00
+lavada carro;expensive; $25.000 ;vehicle;2025-10-02 00:00:00
+supermercado pan y leche;expensive; $51.140 ;food;2025-10-02 00:00:00
+gimnasia sofi;expensive; $20.000 ;education;2025-10-02 00:00:00
+transferencia nequi Diana;expensive; $40.000 ;food;2025-10-02 02:00:00
+transferencia;expensive; $25.000 ;food;2025-10-01 00:00:00
+carne y gaseosa;expensive; $30.000 ;food;2025-10-01 00:00:00
+perro santi;expensive; $17.000 ;restaurant;2025-10-01 00:00:00
+Remedio quemadurasn refrescante;expensive; $30.000 ;health;2025-10-05 00:00:00
+musican trovadores;expensive; $217.000 ;entertainment;2025-10-05 00:00:00
+finca santafe;expensive; $540.000 ;entertainment;2025-10-05 00:00:00
+peajes santafe;expensive; $47.400 ;vehicle;2025-10-05 00:00:00
+exito san jeronimo;expensive; $44.390 ;entertainment;2025-10-05 00:00:00
+sepillos santafe;expensive; $40.000 ;entertainment;2025-10-05 00:00:00
+fruta san jeronimo;expensive; $10.000 ;entertainment;2025-10-05 00:00:00
+recarga extintor y kit carretera;expensive; $40.000 ;vehicle;2025-10-05 00:00:00
+Emi parents;expensive; $88.000 ;health;2025-10-05 00:00:00
+almuerzos santafe;expensive; $48.000 ;restaurant;2025-10-06 00:00:00
+ahorro sofi;expensive; $20.000 ;other;2025-10-06 00:00:00
+gimnasia sofi mecato;expensive; $10.000 ;education;2025-10-06 00:00:00
+parqueadero gimnasia sofi;expensive; $50.000 ;vehicle;2025-10-06 00:00:00
+flypass;expensive; $6.700 ;vehicle;2025-10-08 00:00:00
+flypass;expensive; $4.500 ;vehicle;2025-10-08 00:00:00
+huevos;expensive; $20.000 ;food;2025-10-08 00:00:00
+sodas;expensive; $10.000 ;food;2025-10-08 00:00:00
+agua sofi;expensive; $2.400 ;education;2025-10-14 00:00:00
+algo santi;expensive; $10.000 ;education;2025-10-14 00:00:00
+helado sofi;expensive; $10.000 ;entertainment;2025-10-14 00:00:00
+pago movistar internet;expensive; $101.990 ;public services;2025-10-14 00:00:00
 Auxilio internet;income; $49.000 ;internet help;2025-10-15 00:00:00
 Salary;income; $3.420.293 ;salary;2025-10-15 00:00:00
 Salary vacaciones;income; $2.093.321 ;salary;2025-10-15 00:00:00
@@ -1589,53 +1588,53 @@ descuento solidaridad;expensive; $162.641 ;Taxes;2025-12-15 00:00:00
 mutuocolombia;expensive; $176.434 ;Saving;2025-12-15 00:00:00
 afc;expensive; $180.000 ;Saving;2025-12-15 00:00:00
 retefuente;expensive; $802.000 ;Taxes;2025-12-15 00:00:00
-mercado exito;expensive; $750.000 ;food;15/12/25 0:00
-aromatizante;expensive; $156.800 ;home;15/12/25 0:00
-flypass;expensive; $6.200 ;vehicle;15/12/25 0:00
-cel mama;expensive; $50.000 ;parents;15/12/25 0:00
-celebrity motilada;expensive; $90.000 ;personal presentation;15/12/25 0:00
-cambalache;expensive; $207.000 ;restaurant;15/12/25 0:00
-movistar internet;expensive; $101.990 ;public services;15/12/25 0:00
-gasoline;expensive; $193.901 ;vehicle;15/12/25 0:00
-factura epm;expensive; $163.000 ;parents;15/12/25 0:00
-hbo;expensive; $14.950 ;entertainment;15/12/25 0:00
-apple bill gio;expensive; $4.000 ;entertainment;15/12/25 0:00
-apple bill Diana;expensive; $14.000 ;entertainment;15/12/25 0:00
-psarqueadero;expensive; $190.000 ;vehicle;15/12/25 0:00
-administracion sol creciente;expensive; $416.803 ;loan;15/12/25 0:00
-creatina;expensive; $115.000 ;health;15/12/25 0:00
-pan de quesos;expensive; $36.000 ;restaurant;15/12/25 0:00
-juegos sofi tesoro;expensive; $54.000 ;entertainment;15/12/25 0:00
-juegos sofi tesoro;expensive; $16.000 ;entertainment;15/12/25 0:00
-celular factura;expensive; $79.900 ;personal presentation;15/12/25 0:00
-arepa de huego;expensive; $12.500 ;restaurant;15/12/25 0:00
-flypass;expensive; $12.700 ;vehicle;15/12/25 0:00
-arepa;expensive; $14.950 ;restaurant;15/12/25 0:00
-plata santi;expensive; $20.000 ;entertainment;15/12/25 0:00
-peinada sofi;expensive; $46.000 ;personal presentation;15/12/25 0:00
-restaurante;expensive; $19.000 ;restaurant;15/12/25 0:00
-aceite;expensive; $520.000 ;vehicle;18/12/25 0:00
-sodas éxito san antonio;expensive; $25.000 ;restaurant;18/12/25 0:00
-coke;expensive; $10.000 ;restaurant;18/12/25 0:00
-quesito sofi;expensive; $11.000 ;food;18/12/25 0:00
-bono;income; $50.000 ;salary;18/12/25 0:00
-restaurante;expensive; $205.000 ;restaurant;18/12/25 0:00
-parking;expensive; $15.000 ;vehicle;18/12/25 0:00
-odontologia;expensive; $50.000 ;health;18/12/25 0:00
-migueria;expensive; $39.500 ;restaurant;18/12/25 0:00
-juegos sofi y primos parque;expensive; $30.000 ;entertainment;20/12/25 0:00
-helados;expensive; $5.000 ;entertainment;20/12/25 0:00
-gasolina;expensive; $175.000 ;vehicle;20/12/25 0:00
-cama lulu;expensive; $139.000 ;pet;23/12/25 0:00
-regalo ofelia locion;expensive; $150.000 ;gift;23/12/25 0:00
-regalo sofi niño dios;expensive; $580.000 ;gift;23/12/25 0:00
-gafas;expensive; $125.000 ;health;23/12/25 0:00
-buzo santi regalo papa;expensive; $100.000 ;gift;23/12/25 0:00
-locion nia;expensive; $180.000 ;gift;23/12/25 0:00
-camiseta santi;expensive; $220.000 ;clothes;23/12/25 0:00
-Doña janeth;expensive; $56.000 ;home;23/12/25 0:00
-regalo nena;expensive; $130.000 ;gift;23/12/25 0:00
-carne;expensive; $30.000 ;food;27/12/25 0:00
+mercado exito;expensive; $750.000 ;food;2025-12-15 00:00:00
+aromatizante;expensive; $156.800 ;home;2025-12-15 00:00:00
+flypass;expensive; $6.200 ;vehicle;2025-12-15 00:00:00
+cel mama;expensive; $50.000 ;parents;2025-12-15 00:00:00
+celebrity motilada;expensive; $90.000 ;personal presentation;2025-12-15 00:00:00
+cambalache;expensive; $207.000 ;restaurant;2025-12-15 00:00:00
+movistar internet;expensive; $101.990 ;public services;2025-12-15 00:00:00
+gasoline;expensive; $193.901 ;vehicle;2025-12-15 00:00:00
+factura epm;expensive; $163.000 ;parents;2025-12-15 00:00:00
+hbo;expensive; $14.950 ;entertainment;2025-12-15 00:00:00
+apple bill gio;expensive; $4.000 ;entertainment;2025-12-15 00:00:00
+apple bill Diana;expensive; $14.000 ;entertainment;2025-12-15 00:00:00
+psarqueadero;expensive; $190.000 ;vehicle;2025-12-15 00:00:00
+administracion sol creciente;expensive; $416.803 ;loan;2025-12-15 00:00:00
+creatina;expensive; $115.000 ;health;2025-12-15 00:00:00
+pan de quesos;expensive; $36.000 ;restaurant;2025-12-15 00:00:00
+juegos sofi tesoro;expensive; $54.000 ;entertainment;2025-12-15 00:00:00
+juegos sofi tesoro;expensive; $16.000 ;entertainment;2025-12-15 00:00:00
+celular factura;expensive; $79.900 ;personal presentation;2025-12-15 00:00:00
+arepa de huego;expensive; $12.500 ;restaurant;2025-12-15 00:00:00
+flypass;expensive; $12.700 ;vehicle;2025-12-15 00:00:00
+arepa;expensive; $14.950 ;restaurant;2025-12-15 00:00:00
+plata santi;expensive; $20.000 ;entertainment;2025-12-15 00:00:00
+peinada sofi;expensive; $46.000 ;personal presentation;2025-12-15 00:00:00
+restaurante;expensive; $19.000 ;restaurant;2025-12-15 00:00:00
+aceite;expensive; $520.000 ;vehicle;2025-12-18 00:00:00
+sodas éxito san antonio;expensive; $25.000 ;restaurant;2025-12-18 00:00:00
+coke;expensive; $10.000 ;restaurant;2025-12-18 00:00:00
+quesito sofi;expensive; $11.000 ;food;2025-12-18 00:00:00
+bono;income; $50.000 ;salary;2025-12-18 00:00:00
+restaurante;expensive; $205.000 ;restaurant;2025-12-18 00:00:00
+parking;expensive; $15.000 ;vehicle;2025-12-18 00:00:00
+odontologia;expensive; $50.000 ;health;2025-12-18 00:00:00
+migueria;expensive; $39.500 ;restaurant;2025-12-18 00:00:00
+juegos sofi y primos parque;expensive; $30.000 ;entertainment;2025-12-20 00:00:00
+helados;expensive; $5.000 ;entertainment;2025-12-20 00:00:00
+gasolina;expensive; $175.000 ;vehicle;2025-12-20 00:00:00
+cama lulu;expensive; $139.000 ;pet;2025-12-23 00:00:00
+regalo ofelia locion;expensive; $150.000 ;gift;2025-12-23 00:00:00
+regalo sofi niño dios;expensive; $580.000 ;gift;2025-12-23 00:00:00
+gafas;expensive; $125.000 ;health;2025-12-23 00:00:00
+buzo santi regalo papa;expensive; $100.000 ;gift;2025-12-23 00:00:00
+locion nia;expensive; $180.000 ;gift;2025-12-23 00:00:00
+camiseta santi;expensive; $220.000 ;clothes;2025-12-23 00:00:00
+Doña janeth;expensive; $56.000 ;home;2025-12-23 00:00:00
+regalo nena;expensive; $130.000 ;gift;2025-12-23 00:00:00
+carne;expensive; $30.000 ;food;2025-12-27 00:00:00
 internet help;income; $49.000 ;salary;2026-01-01 00:00:00
 Salary;income; $5.505.437 ;salary;2026-01-01 00:00:00
 prestamo personal cuota inicial;expensive; $86.928 ;loan;2026-01-01 00:00:00
@@ -1650,52 +1649,52 @@ descuento solidaridad;expensive; $162.641 ;Taxes;2026-01-01 00:00:00
 mutuocolombia;expensive; $176.434 ;Saving;2026-01-01 00:00:00
 afc;expensive; $180.000 ;Saving;2026-01-01 00:00:00
 retefuente;expensive; $802.000 ;Taxes;2026-01-01 00:00:00
-food éxito;expensive; $750.000 ;food;1/01/26 0:00
-frisby;expensive; $79.900 ;restaurant;1/01/26 0:00
-mom gift;expensive; $200.000 ;gift;1/01/26 0:00
-cine;expensive; $50.000 ;entertainment;1/01/26 0:00
-cuadernos;expensive; $126.425 ;education;1/01/26 0:00
-dólar city;expensive; $89.500 ;home;1/01/26 0:00
-transferencia qr;expensive; $500 ;Taxes;1/01/26 0:00
-iva transferencia qr;expensive; $95 ;Taxes;1/01/26 0:00
-flypass;expensive; $6.700 ;vehicle;1/01/26 0:00
-flypass;expensive; $5.200 ;vehicle;1/01/26 0:00
-flypass terminal;expensive; $4.200 ;vehicle;1/01/26 0:00
-oblea;expensive; $10.000 ;restaurant;1/01/26 0:00
-quesito;expensive; $13.700 ;food;1/01/26 0:00
-4x100;expensive; $204 ;Taxes;1/01/26 0:00
-pizza;expensive; $51.000 ;restaurant;1/01/26 0:00
-peaje;expensive; $17.820 ;vehicle;1/01/26 0:00
-peaje;expensive; $17.820 ;vehicle;1/01/26 0:00
-4x1000;expensive; $71 ;vehicle;1/01/26 0:00
-4x1000;expensive; $17 ;vehicle;1/01/26 0:00
-cel nana;expensive; $27.017 ;public services;1/01/26 0:00
-4x1000;expensive; $3.516 ;Taxes;1/01/26 0:00
-public services;expensive; $560.000 ;public services;1/01/26 0:00
-parents;expensive; $339.000 ;parents;1/01/26 0:00
-ice cream;expensive; $5.100 ;restaurant;1/01/26 0:00
-4x1000;expensive; $10.093 ;Taxes;1/01/26 0:00
-cambalache;expensive; $65.556 ;restaurant;1/01/26 0:00
-home center;expensive; $40.700 ;home;1/01/26 0:00
-mic regalo niña caro;expensive; $62.560 ;gift;1/01/26 0:00
-home center;expensive; $61.100 ;home;1/01/26 0:00
-gasoline;expensive; $158.450 ;vehicle;1/01/26 0:00
-pago semestre Udea Santi;expensive; $2.130.000 ;education;1/01/26 0:00
-cel Gio;expensive; $36.601 ;public services;1/01/26 0:00
-harry pasteleria;expensive; $139.500 ;restaurant;3/01/26 0:00
-Emi;expensive; $105.800 ;health;3/01/26 0:00
-liquido piso juntas;expensive; $5.980 ;home;3/01/26 0:00
-uber;expensive; $34.380 ;vehicle;3/01/26 0:00
-intereses;expensive; $1.526 ;vehicle;3/01/26 0:00
-apple bill gio;expensive; $26.524 ;public services;3/01/26 0:00
-apple bill Diana;expensive; $12.692 ;public services;3/01/26 0:00
-lucho aguinaldo;expensive; $100.000 ;solidarity;7/01/26 0:00
-liga santi cine;expensive; $30.000 ;entertainment;7/01/26 0:00
-almuerzo banco;expensive; $20.000 ;restaurant;7/01/26 0:00
-almuerzo banco;expensive; $20.000 ;restaurant;5/01/26 0:00
-buses;expensive; $14.000 ;vehicle;7/01/26 0:00
-buses;expensive; $14.000 ;vehicle;5/01/26 0:00
-cine;expensive; $85.200 ;entertainment;9/01/26 0:00
-parking viva envigado;expensive; $16.700 ;vehicle;9/01/26 0:00
-parking oviedo;expensive; $7.200 ;vehicle;9/01/26 0:00
-gafas 3d;expensive; $10.000 ;entertainment;9/01/26 0:00
+food éxito;expensive; $750.000 ;food;2026-01-01 00:00:00
+frisby;expensive; $79.900 ;restaurant;2026-01-01 00:00:00
+mom gift;expensive; $200.000 ;gift;2026-01-01 00:00:00
+cine;expensive; $50.000 ;entertainment;2026-01-01 00:00:00
+cuadernos;expensive; $126.425 ;education;2026-01-01 00:00:00
+dólar city;expensive; $89.500 ;home;2026-01-01 00:00:00
+transferencia qr;expensive; $500 ;Taxes;2026-01-01 00:00:00
+iva transferencia qr;expensive; $95 ;Taxes;2026-01-01 00:00:00
+flypass;expensive; $6.700 ;vehicle;2026-01-01 00:00:00
+flypass;expensive; $5.200 ;vehicle;2026-01-01 00:00:00
+flypass terminal;expensive; $4.200 ;vehicle;2026-01-01 00:00:00
+oblea;expensive; $10.000 ;restaurant;2026-01-01 00:00:00
+quesito;expensive; $13.700 ;food;2026-01-01 00:00:00
+4x100;expensive; $204 ;Taxes;2026-01-01 00:00:00
+pizza;expensive; $51.000 ;restaurant;2026-01-01 00:00:00
+peaje;expensive; $17.820 ;vehicle;2026-01-01 00:00:00
+peaje;expensive; $17.820 ;vehicle;2026-01-01 00:00:00
+4x1000;expensive; $71 ;vehicle;2026-01-01 00:00:00
+4x1000;expensive; $17 ;vehicle;2026-01-01 00:00:00
+cel nana;expensive; $27.017 ;public services;2026-01-01 00:00:00
+4x1000;expensive; $3.516 ;Taxes;2026-01-01 00:00:00
+public services;expensive; $560.000 ;public services;2026-01-01 00:00:00
+parents;expensive; $339.000 ;parents;2026-01-01 00:00:00
+ice cream;expensive; $5.100 ;restaurant;2026-01-01 00:00:00
+4x1000;expensive; $10.093 ;Taxes;2026-01-01 00:00:00
+cambalache;expensive; $65.556 ;restaurant;2026-01-01 00:00:00
+home center;expensive; $40.700 ;home;2026-01-01 00:00:00
+mic regalo niña caro;expensive; $62.560 ;gift;2026-01-01 00:00:00
+home center;expensive; $61.100 ;home;2026-01-01 00:00:00
+gasoline;expensive; $158.450 ;vehicle;2026-01-01 00:00:00
+pago semestre Udea Santi;expensive; $2.130.000 ;education;2026-01-01 00:00:00
+cel Gio;expensive; $36.601 ;public services;2026-01-01 00:00:00
+harry pasteleria;expensive; $139.500 ;restaurant;2026-01-03 00:00:00
+Emi;expensive; $105.800 ;health;2026-01-03 00:00:00
+liquido piso juntas;expensive; $5.980 ;home;2026-01-03 00:00:00
+uber;expensive; $34.380 ;vehicle;2026-01-03 00:00:00
+intereses;expensive; $1.526 ;vehicle;2026-01-03 00:00:00
+apple bill gio;expensive; $26.524 ;public services;2026-01-03 00:00:00
+apple bill Diana;expensive; $12.692 ;public services;2026-01-03 00:00:00
+lucho aguinaldo;expensive; $100.000 ;solidarity;2026-01-07 00:00:00
+liga santi cine;expensive; $30.000 ;entertainment;2026-01-07 00:00:00
+almuerzo banco;expensive; $20.000 ;restaurant;2026-01-07 00:00:00
+almuerzo banco;expensive; $20.000 ;restaurant;2026-01-05 00:00:00
+buses;expensive; $14.000 ;vehicle;2026-01-07 00:00:00
+buses;expensive; $14.000 ;vehicle;2026-01-05 00:00:00
+cine;expensive; $85.200 ;entertainment;2026-01-09 00:00:00
+parking viva envigado;expensive; $16.700 ;vehicle;2026-01-09 00:00:00
+parking oviedo;expensive; $7.200 ;vehicle;2026-01-09 00:00:00
+gafas 3d;expensive; $10.000 ;entertainment;2026-01-09 00:00:00

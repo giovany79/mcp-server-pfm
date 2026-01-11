@@ -1,0 +1,4 @@
+fastmcp
+mcp[cli]
+azure-ai-inference
+python-dotenv

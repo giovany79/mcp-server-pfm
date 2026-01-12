@@ -4,7 +4,7 @@ import boto3
 from tools import FinanceTools
 from mcp.server.fastmcp import FastMCP
 from mangum import Mangum
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 # Initialize tools once (warm start optimization)
 tools = FinanceTools()
@@ -21,6 +21,11 @@ def calculate_totals(year: Optional[int] = None, month: Optional[int] = None, ca
 def list_transactions(limit: int = 10, category: Optional[str] = None, start_date: Optional[str] = None, year: Optional[int] = None, month: Optional[int] = None) -> str:
     """List individual transactions matching criteria."""
     return tools.list_transactions(limit, category, start_date, year, month)
+
+@mcp.tool()
+def expenses_by_category(year: Optional[int] = None, month: Optional[int] = None) -> List[Dict[str, float]]:
+    """Calculate expenses grouped by category for the given year/month."""
+    return tools.expenses_by_category(year, month)
 
 # Initialize Mangum handler for MCP (ASGI)
 # This handles the SSE endpoints automatically provided by FastMCP
@@ -91,6 +96,11 @@ def lambda_handler(event, context):
                     limit=int(body.get('limit', 10)),
                     category=body.get('category'),
                     start_date=body.get('start_date'),
+                    year=int(body.get('year')) if body.get('year') else None,
+                    month=int(body.get('month')) if body.get('month') else None
+                )
+            elif tool_name == 'expenses_by_category':
+                result = tools.expenses_by_category(
                     year=int(body.get('year')) if body.get('year') else None,
                     month=int(body.get('month')) if body.get('month') else None
                 )

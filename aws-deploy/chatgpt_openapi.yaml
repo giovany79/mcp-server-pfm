@@ -93,6 +93,40 @@ paths:
                     type: number
                   transaction_count:
                     type: integer
+
+  /expenses_by_category:
+    post:
+      operationId: expensesByCategory
+      summary: Calculate expenses grouped by category
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                year:
+                  type: integer
+                  description: Filter by year
+                month:
+                  type: integer
+                  description: Filter by month
+      responses:
+        "200":
+          description: Successful calculation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    category:
+                      type: string
+                    total:
+                      type: number
 components:
   schemas: {}
   securitySchemes:

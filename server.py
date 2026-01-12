@@ -117,5 +117,28 @@ def list_transactions(limit: int = 10, category: Optional[str] = None, start_dat
     # Return as readable string or JSON
     return result.to_json(orient="records", date_format="iso")
 
+@mcp.tool()
+def expenses_by_category(year: Optional[int] = None, month: Optional[int] = None) -> List[Dict[str, float]]:
+    """
+    Calculate expenses grouped by category for the given year/month.
+    
+    Args:
+        year: The year to filter by (e.g., 2025).
+        month: The month to filter by (1-12).
+    """
+    df = load_data()
+    
+    if year:
+        df = df[df['Date'].dt.year == year]
+    
+    if month:
+        df = df[df['Date'].dt.month == month]
+    
+    expenses = df[df['Income/expensive'].str.lower() == 'expensive']
+    grouped = expenses.groupby('Category', dropna=False)['Amount'].sum().sort_values(ascending=False)
+    result = grouped.reset_index().rename(columns={'Category': 'category', 'Amount': 'total'})
+    
+    return result.to_dict(orient="records")
+
 if __name__ == "__main__":
     mcp.run()

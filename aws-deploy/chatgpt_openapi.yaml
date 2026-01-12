@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: Personal Finance Manager API
   description: API for accessing personal financial data via AWS Lambda.
@@ -94,6 +94,7 @@ paths:
                   transaction_count:
                     type: integer
 components:
+  schemas: {}
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

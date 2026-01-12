@@ -1,0 +1,42 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'aws-deploy/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - uses: aws-actions/setup-sam@v2
+      
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1 # Cambia esto si usas otra región
+
+      - name: Build and Deploy
+        run: |
+          cd aws-deploy
+          # Build inside container to ensure compatibility
+          sam build --use-container
+          
+          # Deploy using non-interactive mode
+          # Note: We need to specify stack name and capabilities
+          # --resolve-s3 automatically creates/manages the artifact bucket
+          sam deploy --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --stack-name mcp-finance-stack \
+            --resolve-s3 \
+            --capabilities CAPABILITY_IAM \
+            --region us-east-1

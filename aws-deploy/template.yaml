@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  mcp-finance-bot
+  
+  Serverless MCP Backend accessible via Telegram and ChatGPT.
+
+Globals:
+  Function:
+    Timeout: 60  # LLMs can be slow
+    MemorySize: 256
+    Environment:
+      Variables:
+        DATA_BUCKET: !Ref DataBucket
+        CHAT_HISTORY_TABLE: !Ref ChatHistoryTable
+        # Secrets should be passed via parameter overrides or Secrets Manager in prod
+        # GITHUB_TOKEN: ... 
+        # TELEGRAM_TOKEN: ...
+
+Resources:
+  # 1. S3 Bucket for Financial Data (pfm-gio.csv)
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "mcp-finance-data-${AWS::AccountId}" # Unique bucket name
+      AccessControl: Private
+
+  # 2. DynamoDB Table for Chat History
+  ChatHistoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: FinanceChatHistory
+      AttributeDefinitions:
+        - AttributeName: session_id
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: session_id
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+  # 3. Main Lambda Function
+  FinanceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Policies:
+        # Permission to read the CSV
+        - S3ReadPolicy:
+            BucketName: !Ref DataBucket
+        # Permission to read/write chat history
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ChatHistoryTable
+      Events:
+        # Endpoint for Telegram Webhook (POST /telegram)
+        TelegramWebhook:
+          Type: Api
+          Properties:
+            Path: /telegram
+            Method: post
+        # Endpoint for ChatGPT Actions (POST /tools/...)
+        ToolsApi:
+          Type: Api
+          Properties:
+            Path: /tools/{proxy+}
+            Method: post
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  DataBucketName:
+    Description: "S3 Bucket for your CSV file"
+    Value: !Ref DataBucket

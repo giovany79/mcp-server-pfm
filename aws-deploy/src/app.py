@@ -60,11 +60,11 @@ def lambda_handler(event, context):
                 )
             elif tool_name == 'list_transactions':
                 result = tools.list_transactions(
-                    limit=body.get('limit', 10),
+                    limit=int(body.get('limit', 10)),
                     category=body.get('category'),
                     start_date=body.get('start_date'),
-                    year=body.get('year'),
-                    month=body.get('month')
+                    year=int(body.get('year')) if body.get('year') else None,
+                    month=int(body.get('month')) if body.get('month') else None
                 )
             else:
                 return {'statusCode': 404, 'headers': headers, 'body': json.dumps({'error': 'Tool not found'})}

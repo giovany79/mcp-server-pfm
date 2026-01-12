@@ -1,0 +1,91 @@
+openapi: 3.0.1
+info:
+  title: Personal Finance Manager API
+  description: API for accessing personal financial data via AWS Lambda.
+  version: 1.0.0
+servers:
+  - url: https://ys32oben10.execute-api.us-east-1.amazonaws.com/Prod/tools
+paths:
+  /list_transactions:
+    post:
+      operationId: listTransactions
+      summary: List financial transactions
+      description: Retrieves a list of transactions based on filters.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type: integer
+                  description: Maximum number of transactions to return
+                  default: 10
+                category:
+                  type: string
+                  description: Filter by category name
+                start_date:
+                  type: string
+                  format: date
+                  description: Start date for filtering (YYYY-MM-DD)
+                year:
+                  type: integer
+                  description: Filter by year
+                month:
+                  type: integer
+                  description: Filter by month
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    Date:
+                      type: string
+                    Category:
+                      type: string
+                    Amount:
+                      type: number
+                    Income/expensive:
+                      type: string
+                    Description:
+                      type: string
+
+  /calculate_totals:
+    post:
+      operationId: calculateTotals
+      summary: Calculate financial totals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                year:
+                  type: integer
+                month:
+                  type: integer
+                category:
+                  type: string
+      responses:
+        "200":
+          description: Successful calculation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  income:
+                    type: number
+                  expenses:
+                    type: number
+                  balance:
+                    type: number
+                  transaction_count:
+                    type: integer

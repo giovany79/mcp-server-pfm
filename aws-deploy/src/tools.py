@@ -77,7 +77,7 @@ class FinanceTools:
         if start_date:
             start_dt = pd.to_datetime(start_date)
             df = df[df['Date'] >= start_dt]
-        if category:
+        if category and category.lower() != 'all':
             df = df[df['Category'].str.contains(category, case=False, na=False)]
             
         df = df.sort_values(by='Date', ascending=False)

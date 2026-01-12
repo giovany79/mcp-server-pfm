@@ -150,3 +150,11 @@ Make sure your `.env` file exists and `python-dotenv` is installed.
 ### Server Connection Failed
 
 Ensure `mcp dev server.py` is running in one terminal BEFORE starting `python client.py`.
+
+#
+
+```bash
+curl -X POST https://ys32oben10.execute-api.us-east-1.amazonaws.com/Prod/tools/calculate_totals \
+  -H "Content-Type: application/json" \
+  -d '{"year": 2025}'
+```

@@ -25,8 +25,25 @@ def lambda_handler(event, context):
         'Access-Control-Allow-Methods': 'OPTIONS,POST'
     }
     
+    
     if http_method == 'OPTIONS':
         return {'statusCode': 200, 'headers': headers, 'body': ''}
+
+    # --- SECURITY CHECK ---
+    # Verificar que el GPT envíe el secreto correcto
+    # En ChatGPT se configura como "API Key" -> "Auth Type: Custom Header" -> "Header Name: x-api-key"
+    expected_key = os.environ.get('API_KEY_SECRET')
+    incoming_key = event.get('headers', {}).get('x-api-key')
+    
+    # Solo validamos si la variable de entorno está configurada (para no romper en local/dev si no se quiere)
+    if expected_key and incoming_key != expected_key:
+        print(f"Unauthorized: Invalid API Key")
+        return {
+            'statusCode': 403,
+            'headers': headers,
+            'body': json.dumps({'error': 'Forbidden: Invalid API Key'})
+        }
+    # ----------------------
 
     try:
         if path.startswith('/tools/'):

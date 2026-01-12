@@ -1,0 +1,124 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Personal Finance Assistant",
+        "description": "API for analyzing personal financial records from a CSV file.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://ys32oben10.execute-api.us-east-1.amazonaws.com/Prod/"
+        }
+    ],
+    "paths": {
+        "/tools/calculate_totals": {
+            "post": {
+                "description": "Calculate total income, expenses, and balance for a specific year, month, or category.",
+                "operationId": "calculateTotals",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "year": {
+                                        "type": "integer",
+                                        "description": "Year to filter by (e.g., 2025)"
+                                    },
+                                    "month": {
+                                        "type": "integer",
+                                        "description": "Month to filter by (1-12)"
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "description": "Category to filter by (e.g., 'food', 'restaurant')"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful calculation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "income": {
+                                            "type": "number"
+                                        },
+                                        "expenses": {
+                                            "type": "number"
+                                        },
+                                        "balance": {
+                                            "type": "number"
+                                        },
+                                        "transaction_count": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tools/list_transactions": {
+            "post": {
+                "description": "List individual transactions matching specific criteria.",
+                "operationId": "listTransactions",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "limit": {
+                                        "type": "integer",
+                                        "description": "Max number of transactions to return (default 10)",
+                                        "default": 10
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "description": "Category to filter by"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "Filter transactions on or after this date (YYYY-MM-DD)"
+                                    },
+                                    "year": {
+                                        "type": "integer",
+                                        "description": "Year to filter by"
+                                    },
+                                    "month": {
+                                        "type": "integer",
+                                        "description": "Month to filter by"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of transactions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string",
+                                    "description": "JSON string containing the list of transactions"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

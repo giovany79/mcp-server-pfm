@@ -39,4 +39,5 @@ jobs:
             --stack-name mcp-finance-stack \
             --resolve-s3 \
             --capabilities CAPABILITY_IAM \
-            --region us-east-1
+            --region us-east-1 \
+            --parameter-overrides ApiKeySecret=${{ secrets.API_KEY_SECRET }}

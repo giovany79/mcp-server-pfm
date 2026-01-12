@@ -32,6 +32,7 @@ This project implements a custom MCP server that bridges the gap between raw fin
 - **Financial Tools**:
   - **`calculate_totals`**: Aggregates income, expenses, and balance by year, month, or category.
   - **`list_transactions`**: Retrieves specific transactions with filtering options.
+  - **`expenses_by_category`**: Aggregates expenses grouped by category for a given year/month.
 - **Dual Modes**:
   - **Local MCP**: Standard stdio-based server for local agents (Claude, IDEs).
   - **AWS Serverless**: REST API via API Gateway + Lambda for remote integrations (Custom GPTs, ChatGPT Actions, Telegram).
@@ -166,6 +167,15 @@ curl -X POST https://<your-api-url>/Prod/tools/list_transactions \
   -d '{"limit": 5, "category": "Food"}'
 ```
 
+**Example: Expenses by Category**
+
+```bash
+curl -X POST https://<your-api-url>/Prod/tools/expenses_by_category \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_SECRET_KEY" \
+  -d '{"year": 2025, "month": 3}'
+```
+
 ### 3. ChatGPT Actions (OpenAPI)
 
 Use `aws-deploy/chatgpt_openapi.yaml` in the ChatGPT Actions console. It is OpenAPI **3.1.0** and includes `x-api-key` auth in `components.securitySchemes`.
@@ -174,6 +184,7 @@ Use `aws-deploy/chatgpt_openapi.yaml` in the ChatGPT Actions console. It is Open
 - Base URL must match your API Gateway stage: `https://<api-id>.execute-api.us-east-1.amazonaws.com/Prod/tools`
 - All operations are `POST` and require `Content-Type: application/json` and `x-api-key` (when `API_KEY_SECRET` is set).
 - `list_transactions` returns a **JSON array** of transaction objects (not a JSON string).
+- `expenses_by_category` returns a **JSON array** of `{ category, total }`.
 
 ## 🛠️ Tools & Resources
 
@@ -183,6 +194,8 @@ Use `aws-deploy/chatgpt_openapi.yaml` in the ChatGPT Actions console. It is Open
   - Returns: `income`, `expenses`, `balance`, `transaction_count`.
 - **`list_transactions(limit, category, start_date)`**
   - Returns: List of transaction objects (JSON array).
+- **`expenses_by_category(year, month)`**
+  - Returns: List of `{ category, total }` objects (JSON array).
 
 ### Resources
 

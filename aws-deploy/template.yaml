@@ -75,6 +75,12 @@ Resources:
           Properties:
             Path: /tools/{proxy+}
             Method: post
+        # Endpoint for MCP clients (SSE)
+        McpApi:
+          Type: Api
+          Properties:
+            Path: /mcp/{proxy+}
+            Method: any
 
 Outputs:
   ApiUrl:

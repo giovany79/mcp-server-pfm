@@ -2,3 +2,6 @@ pandas
 boto3
 requests
 azure-ai-inference
+mangum
+fastmcp
+uvicorn

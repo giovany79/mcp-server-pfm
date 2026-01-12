@@ -2,7 +2,7 @@ import pandas as pd
 import boto3
 import io
 import os
-from typing import Optional, Dict
+from typing import Optional, Dict, List, Any
 
 class FinanceTools:
     def __init__(self):
@@ -67,7 +67,7 @@ class FinanceTools:
             "transaction_count": int(len(df))
         }
 
-    def list_transactions(self, limit: int = 10, category: Optional[str] = None, start_date: Optional[str] = None, year: Optional[int] = None, month: Optional[int] = None) -> str:
+    def list_transactions(self, limit: int = 10, category: Optional[str] = None, start_date: Optional[str] = None, year: Optional[int] = None, month: Optional[int] = None) -> List[Dict[str, Any]]:
         df = self.load_data()
         
         if year:
@@ -81,6 +81,7 @@ class FinanceTools:
             df = df[df['Category'].str.contains(category, case=False, na=False)]
             
         df = df.sort_values(by='Date', ascending=False)
-        result = df.head(limit)
-        
-        return result.to_json(orient="records", date_format="iso")
+        result = df.head(limit).copy()
+        result['Date'] = result['Date'].dt.strftime('%Y-%m-%d')
+
+        return result.to_dict(orient="records")

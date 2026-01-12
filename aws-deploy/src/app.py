@@ -51,7 +51,8 @@ def lambda_handler(event, context):
     headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'OPTIONS,POST'
+        'Access-Control-Allow-Methods': 'OPTIONS,POST',
+        'Content-Type': 'application/json'
     }
     
     if http_method == 'OPTIONS':
@@ -96,10 +97,11 @@ def lambda_handler(event, context):
             else:
                 return {'statusCode': 404, 'headers': headers, 'body': json.dumps({'error': 'Tool not found'})}
                 
+            body = json.dumps(result) if isinstance(result, (dict, list)) else result
             return {
                 'statusCode': 200,
                 'headers': headers,
-                'body': json.dumps(result) if isinstance(result, dict) else result
+                'body': body
             }
             
         elif path == '/telegram':

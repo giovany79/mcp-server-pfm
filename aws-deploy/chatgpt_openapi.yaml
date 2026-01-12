@@ -11,6 +11,8 @@ paths:
       operationId: listTransactions
       summary: List financial transactions
       description: Retrieves a list of transactions based on filters.
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -60,6 +62,8 @@ paths:
     post:
       operationId: calculateTotals
       summary: Calculate financial totals
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -89,3 +93,9 @@ paths:
                     type: number
                   transaction_count:
                     type: integer
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key

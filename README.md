@@ -2,7 +2,7 @@
 
 A specialized Model Context Protocol (MCP) server for personal finance analysis. It allows AI agents to read, query, and analyze financial transaction data from CSV files, providing intelligent insights into income, expenses, and spending habits.
 
-Now supports **AWS Serverless Deployment** for accessing financial tools via a secure HTTP API.
+Now supports **AWS Serverless Deployment** for accessing financial tools via a secure HTTP API, including **ChatGPT Actions** via OpenAPI.
 
 ## 📋 Table of Contents
 
@@ -34,7 +34,7 @@ This project implements a custom MCP server that bridges the gap between raw fin
   - **`list_transactions`**: Retrieves specific transactions with filtering options.
 - **Dual Modes**:
   - **Local MCP**: Standard stdio-based server for local agents (Claude, IDEs).
-  - **AWS Serverless**: REST API via API Gateway + Lambda for remote integrations (Custom GPTs, Telegram).
+  - **AWS Serverless**: REST API via API Gateway + Lambda for remote integrations (Custom GPTs, ChatGPT Actions, Telegram).
 
 ## 🏗️ Project Architecture
 
@@ -166,6 +166,15 @@ curl -X POST https://<your-api-url>/Prod/tools/list_transactions \
   -d '{"limit": 5, "category": "Food"}'
 ```
 
+### 3. ChatGPT Actions (OpenAPI)
+
+Use `aws-deploy/chatgpt_openapi.yaml` in the ChatGPT Actions console. It is OpenAPI **3.1.0** and includes `x-api-key` auth in `components.securitySchemes`.
+
+**Important:**
+- Base URL must match your API Gateway stage: `https://<api-id>.execute-api.us-east-1.amazonaws.com/Prod/tools`
+- All operations are `POST` and require `Content-Type: application/json` and `x-api-key` (when `API_KEY_SECRET` is set).
+- `list_transactions` returns a **JSON array** of transaction objects (not a JSON string).
+
 ## 🛠️ Tools & Resources
 
 ### Tools (Functions)
@@ -173,7 +182,7 @@ curl -X POST https://<your-api-url>/Prod/tools/list_transactions \
 - **`calculate_totals(year, month, category)`**
   - Returns: `income`, `expenses`, `balance`, `transaction_count`.
 - **`list_transactions(limit, category, start_date)`**
-  - Returns: List of transaction objects.
+  - Returns: List of transaction objects (JSON array).
 
 ### Resources
 

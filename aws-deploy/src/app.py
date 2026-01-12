@@ -27,6 +27,11 @@ def expenses_by_category(year: Optional[int] = None, month: Optional[int] = None
     """Calculate expenses grouped by category for the given year/month."""
     return tools.expenses_by_category(year, month)
 
+@mcp.tool()
+def expenses_by_month_for_category(category: str, year: Optional[int] = None) -> List[Dict[str, float]]:
+    """Calculate expenses grouped by month for a given category and optional year."""
+    return tools.expenses_by_month_for_category(category, year)
+
 # Initialize Mangum handler for MCP (ASGI)
 # This handles the SSE endpoints automatically provided by FastMCP
 asgi_handler = Mangum(mcp.sse_app)
@@ -103,6 +108,11 @@ def lambda_handler(event, context):
                 result = tools.expenses_by_category(
                     year=int(body.get('year')) if body.get('year') else None,
                     month=int(body.get('month')) if body.get('month') else None
+                )
+            elif tool_name == 'expenses_by_month_for_category':
+                result = tools.expenses_by_month_for_category(
+                    category=body.get('category', ''),
+                    year=int(body.get('year')) if body.get('year') else None
                 )
             else:
                 return {'statusCode': 404, 'headers': headers, 'body': json.dumps({'error': 'Tool not found'})}

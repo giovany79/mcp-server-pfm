@@ -127,6 +127,40 @@ paths:
                       type: string
                     total:
                       type: number
+
+  /expenses_by_month_for_category:
+    post:
+      operationId: expensesByMonthForCategory
+      summary: Calculate expenses grouped by month for a category
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Category to filter by
+                year:
+                  type: integer
+                  description: Filter by year
+      responses:
+        "200":
+          description: Successful calculation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    month:
+                      type: integer
+                    total:
+                      type: number
 components:
   schemas: {}
   securitySchemes:

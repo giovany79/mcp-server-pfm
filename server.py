@@ -140,5 +140,31 @@ def expenses_by_category(year: Optional[int] = None, month: Optional[int] = None
     
     return result.to_dict(orient="records")
 
+@mcp.tool()
+def expenses_by_month_for_category(category: str, year: Optional[int] = None) -> List[Dict[str, float]]:
+    """
+    Calculate expenses grouped by month for a given category and optional year.
+    
+    Args:
+        category: The category to filter by (case-insensitive substring match).
+        year: The year to filter by (e.g., 2025).
+    """
+    df = load_data()
+
+    if not category:
+        return []
+    
+    if year:
+        df = df[df['Date'].dt.year == year]
+    
+    expenses = df[df['Income/expensive'].str.lower() == 'expensive']
+    expenses = expenses[expenses['Category'].str.contains(category, case=False, na=False)]
+    expenses = expenses.assign(month=expenses['Date'].dt.month)
+    
+    grouped = expenses.groupby('month', dropna=False)['Amount'].sum().sort_index()
+    result = grouped.reset_index().rename(columns={'month': 'month', 'Amount': 'total'})
+    
+    return result.to_dict(orient="records")
+
 if __name__ == "__main__":
     mcp.run()

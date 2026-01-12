@@ -99,3 +99,20 @@ class FinanceTools:
 
         result = grouped.reset_index().rename(columns={'Category': 'category', 'Amount': 'total'})
         return result.to_dict(orient="records")
+
+    def expenses_by_month_for_category(self, category: str, year: Optional[int] = None) -> List[Dict[str, Any]]:
+        df = self.load_data()
+
+        if not category:
+            return []
+
+        if year:
+            df = df[df['Date'].dt.year == year]
+
+        expenses = df[df['Income/expensive'].str.lower() == 'expensive']
+        expenses = expenses[expenses['Category'].str.contains(category, case=False, na=False)]
+        expenses = expenses.assign(month=expenses['Date'].dt.month)
+
+        grouped = expenses.groupby('month', dropna=False)['Amount'].sum().sort_index()
+        result = grouped.reset_index().rename(columns={'month': 'month', 'Amount': 'total'})
+        return result.to_dict(orient="records")

@@ -54,6 +54,9 @@ Resources:
         # Permission to read the CSV
         - S3ReadPolicy:
             BucketName: !Ref DataBucket
+        # Permission to write updated CSV (add transactions)
+        - S3WritePolicy:
+            BucketName: !Ref DataBucket
         # Permission to read/write chat history
         - DynamoDBCrudPolicy:
             TableName: !Ref ChatHistoryTable

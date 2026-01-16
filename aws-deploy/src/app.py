@@ -32,18 +32,6 @@ def expenses_by_month_for_category(category: str, year: Optional[int] = None) ->
     """Calculate expenses grouped by month for a given category and optional year."""
     return tools.expenses_by_month_for_category(category, year)
 
-@mcp.tool()
-def add_movement(date: str, amount: float, category: str, income_expensive: str, description: str) -> Dict[str, Any]:
-    """
-    Add a new financial movement (income or expense).
-    :param date: Date of the transaction (YYYY-MM-DD).
-    :param amount: Amount of the transaction.
-    :param category: Category of the transaction.
-    :param income_expensive: Type of transaction ('income' or 'expensive').
-    :param description: Short description of the transaction.
-    """
-    return tools.add_movement(date, amount, category, income_expensive, description)
-
 # Initialize Mangum handler for MCP (ASGI)
 # This handles the SSE endpoints automatically provided by FastMCP
 asgi_handler = Mangum(mcp.sse_app)
@@ -125,14 +113,6 @@ def lambda_handler(event, context):
                 result = tools.expenses_by_month_for_category(
                     category=body.get('category', ''),
                     year=int(body.get('year')) if body.get('year') else None
-                )
-            elif tool_name == 'add_movement':
-                result = tools.add_movement(
-                    date=body.get('date'),
-                    amount=float(body.get('amount')),
-                    category=body.get('category'),
-                    income_expensive=body.get('income_expensive'),
-                    description=body.get('description')
                 )
             else:
                 return {'statusCode': 404, 'headers': headers, 'body': json.dumps({'error': 'Tool not found'})}

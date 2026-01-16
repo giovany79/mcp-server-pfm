@@ -12,51 +12,39 @@ class FinanceTools:
         self._df = None
         self.s3 = boto3.client('s3')
 
-    def save_data(self, df: pd.DataFrame):
-        """Saves the DataFrame back to S3."""
-        try:
-            print(f"Saving data to S3: {self.bucket_name}/{self.file_key}")
-            csv_buffer = io.StringIO()
-            # Use same separator and encoding as load_data
-            df.to_csv(csv_buffer, sep=";", index=False, encoding="utf-8")
+    def load_data(self) -> pd.DataFrame:
+        """Loads data from S3, caching it in memory for the lambda execution context."""
+        if self._df is not None:
+            return self._df
             
-            self.s3.put_object(
-                Bucket=self.bucket_name,
-                Key=self.file_key,
-                Body=csv_buffer.getvalue()
-            )
-            self._df = df # Update cache
+        try:
+            print(f"Loading data from S3: {self.bucket_name}/{self.file_key}")
+            obj = self.s3.get_object(Bucket=self.bucket_name, Key=self.file_key)
+            csv_content = obj['Body'].read()
+            
+            # Read CSV from bytes
+            df = pd.read_csv(io.BytesIO(csv_content), sep=";", encoding="utf-8")
+            
+            # --- CLEANING LOGIC (Same as server.py) ---
+            df.columns = [c.strip() for c in df.columns]
+            
+            # Clean Amount
+            if df['Amount'].dtype == 'object':
+                df['Amount'] = df['Amount'].astype(str).str.replace(r'[$. ]', '', regex=True)
+                df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce')
+                
+            df = df.dropna(subset=['Amount'])
+            
+            # Clean Dates (handling mixed formats)
+            df['Date'] = pd.to_datetime(df['Date'], format='mixed', dayfirst=True, errors='coerce')
+            df = df.dropna(subset=['Date'])
+            # ------------------------------------------
+            
+            self._df = df
+            return df
         except Exception as e:
-            print(f"Error saving S3 data: {e}")
+            print(f"Error loading S3 data: {e}")
             raise
-
-    def add_movement(self, date: str, amount: float, category: str, income_expensive: str, description: str) -> Dict[str, Any]:
-        """Adds a new movement to the financial records."""
-        # Ensure data is loaded
-        df = self.load_data()
-        
-        # Create new record
-        new_row = {
-            'Date': pd.to_datetime(date),
-            'Category': category,
-            'Amount': amount,
-            'Income/expensive': income_expensive,
-            'Description': description
-        }
-        
-        # Append to dataframe
-        new_df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-        
-        # Save back to S3
-        self.save_data(new_df)
-        
-        # Format date for return
-        new_row['Date'] = new_row['Date'].strftime('%Y-%m-%d')
-        return {
-            "status": "success",
-            "message": "Movement added successfully",
-            "data": new_row
-        }
 
     def calculate_totals(self, year: Optional[int] = None, month: Optional[int] = None, category: Optional[str] = None) -> Dict[str, float]:
         df = self.load_data()

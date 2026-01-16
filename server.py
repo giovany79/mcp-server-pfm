@@ -1,7 +1,7 @@
 from mcp.server.fastmcp import FastMCP
 import pandas as pd
 from datetime import datetime
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 # Create an MCP Server
 mcp = FastMCP("Personal Finance Manager")
@@ -165,6 +165,76 @@ def expenses_by_month_for_category(category: str, year: Optional[int] = None) ->
     result = grouped.reset_index().rename(columns={'month': 'month', 'Amount': 'total'})
     
     return result.to_dict(orient="records")
+
+@mcp.tool()
+def add_transaction(
+    description: str,
+    transaction_type: str,
+    amount: float,
+    category: str,
+    date: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Add a new transaction to the local CSV file.
+    
+    Args:
+        description: Transaction description.
+        transaction_type: 'income' or 'expensive'.
+        amount: Transaction amount (positive number).
+        category: Category name.
+        date: Optional date string (YYYY-MM-DD or similar).
+    """
+    if not description or not description.strip():
+        raise ValueError("Description is required")
+    if not category or not category.strip():
+        raise ValueError("Category is required")
+    if not transaction_type or not transaction_type.strip():
+        raise ValueError("Transaction type is required")
+
+    normalized_type = transaction_type.strip().lower()
+    if normalized_type not in {"income", "expensive"}:
+        raise ValueError("Transaction type must be 'income' or 'expensive'")
+
+    try:
+        amount_value = float(amount)
+    except (TypeError, ValueError):
+        raise ValueError("Amount must be a number")
+
+    if amount_value <= 0:
+        raise ValueError("Amount must be greater than zero")
+
+    if date:
+        try:
+            parsed_date = pd.to_datetime(date, format='mixed', dayfirst=True, errors='raise')
+        except (TypeError, ValueError):
+            raise ValueError("Date must be a valid date string")
+    else:
+        parsed_date = pd.to_datetime(datetime.now().date())
+
+    df = load_data()
+    new_row = {
+        "Description": description.strip(),
+        "Income/expensive": normalized_type,
+        "Amount": amount_value,
+        "Category": category.strip(),
+        "Date": parsed_date
+    }
+
+    updated = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    updated = updated[["Description", "Income/expensive", "Amount", "Category", "Date"]]
+    updated.to_csv(DATA_PATH, sep=";", index=False)
+
+    return {
+        "status": "ok",
+        "transaction": {
+            "Description": new_row["Description"],
+            "Income/expensive": new_row["Income/expensive"],
+            "Amount": float(new_row["Amount"]),
+            "Category": new_row["Category"],
+            "Date": parsed_date.strftime("%Y-%m-%d")
+        },
+        "transaction_count": int(len(updated))
+    }
 
 if __name__ == "__main__":
     mcp.run()

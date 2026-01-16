@@ -148,6 +148,96 @@
                     }
                 }
             }
+        },
+        "/tools/add_transaction": {
+            "post": {
+                "description": "Add a new transaction to the dataset.",
+                "operationId": "addTransaction",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "description",
+                                    "transaction_type",
+                                    "amount",
+                                    "category"
+                                ],
+                                "properties": {
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Transaction description"
+                                    },
+                                    "transaction_type": {
+                                        "type": "string",
+                                        "description": "Transaction type: income or expensive"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "description": "Transaction amount (positive number)"
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "description": "Category name"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "Transaction date (YYYY-MM-DD)"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Transaction added",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "transaction": {
+                                            "type": "object",
+                                            "properties": {
+                                                "Description": {
+                                                    "type": "string"
+                                                },
+                                                "Income/expensive": {
+                                                    "type": "string"
+                                                },
+                                                "Amount": {
+                                                    "type": "number"
+                                                },
+                                                "Category": {
+                                                    "type": "string"
+                                                },
+                                                "Date": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "transaction_count": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {

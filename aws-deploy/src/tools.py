@@ -2,6 +2,7 @@ import pandas as pd
 import boto3
 import io
 import os
+from datetime import datetime
 from typing import Optional, Dict, List, Any
 
 class FinanceTools:
@@ -116,3 +117,75 @@ class FinanceTools:
         grouped = expenses.groupby('month', dropna=False)['Amount'].sum().sort_index()
         result = grouped.reset_index().rename(columns={'month': 'month', 'Amount': 'total'})
         return result.to_dict(orient="records")
+
+    def add_transaction(
+        self,
+        description: str,
+        transaction_type: str,
+        amount: float,
+        category: str,
+        date: Optional[str] = None
+    ) -> Dict[str, Any]:
+        if not self.bucket_name:
+            raise RuntimeError("DATA_BUCKET is not configured")
+
+        if not description or not description.strip():
+            raise ValueError("Description is required")
+        if not category or not category.strip():
+            raise ValueError("Category is required")
+        if not transaction_type or not transaction_type.strip():
+            raise ValueError("Transaction type is required")
+
+        normalized_type = transaction_type.strip().lower()
+        if normalized_type not in {"income", "expensive"}:
+            raise ValueError("Transaction type must be 'income' or 'expensive'")
+
+        try:
+            amount_value = float(amount)
+        except (TypeError, ValueError):
+            raise ValueError("Amount must be a number")
+
+        if amount_value <= 0:
+            raise ValueError("Amount must be greater than zero")
+
+        if date:
+            try:
+                parsed_date = pd.to_datetime(date, format='mixed', dayfirst=True, errors='raise')
+            except (TypeError, ValueError):
+                raise ValueError("Date must be a valid date string")
+        else:
+            parsed_date = pd.to_datetime(datetime.now().date())
+
+        df = self.load_data()
+        new_row = {
+            "Description": description.strip(),
+            "Income/expensive": normalized_type,
+            "Amount": amount_value,
+            "Category": category.strip(),
+            "Date": parsed_date
+        }
+
+        updated = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+        updated = updated[["Description", "Income/expensive", "Amount", "Category", "Date"]]
+
+        buffer = io.StringIO()
+        updated.to_csv(buffer, sep=";", index=False)
+        self.s3.put_object(
+            Bucket=self.bucket_name,
+            Key=self.file_key,
+            Body=buffer.getvalue().encode("utf-8")
+        )
+
+        self._df = updated
+
+        return {
+            "status": "ok",
+            "transaction": {
+                "Description": new_row["Description"],
+                "Income/expensive": new_row["Income/expensive"],
+                "Amount": float(new_row["Amount"]),
+                "Category": new_row["Category"],
+                "Date": parsed_date.strftime("%Y-%m-%d")
+            },
+            "transaction_count": int(len(updated))
+        }

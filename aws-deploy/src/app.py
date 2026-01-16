@@ -32,6 +32,17 @@ def expenses_by_month_for_category(category: str, year: Optional[int] = None) ->
     """Calculate expenses grouped by month for a given category and optional year."""
     return tools.expenses_by_month_for_category(category, year)
 
+@mcp.tool()
+def add_transaction(
+    description: str,
+    transaction_type: str,
+    amount: float,
+    category: str,
+    date: Optional[str] = None
+) -> Dict[str, object]:
+    """Add a new transaction to the dataset."""
+    return tools.add_transaction(description, transaction_type, amount, category, date)
+
 # Initialize Mangum handler for MCP (ASGI)
 # This handles the SSE endpoints automatically provided by FastMCP
 asgi_handler = Mangum(mcp.sse_app)
@@ -113,6 +124,14 @@ def lambda_handler(event, context):
                 result = tools.expenses_by_month_for_category(
                     category=body.get('category', ''),
                     year=int(body.get('year')) if body.get('year') else None
+                )
+            elif tool_name == 'add_transaction':
+                result = tools.add_transaction(
+                    description=body.get('description', ''),
+                    transaction_type=body.get('transaction_type', ''),
+                    amount=body.get('amount'),
+                    category=body.get('category', ''),
+                    date=body.get('date')
                 )
             else:
                 return {'statusCode': 404, 'headers': headers, 'body': json.dumps({'error': 'Tool not found'})}

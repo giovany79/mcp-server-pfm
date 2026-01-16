@@ -161,6 +161,49 @@ paths:
                       type: integer
                     total:
                       type: number
+
+  /add_movement:
+    post:
+      operationId: addMovement
+      summary: Add a financial movement
+      description: Adds a new income or expense transaction to the records.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, amount, category, income_expensive, description]
+              properties:
+                date:
+                  type: string
+                  format: date
+                  description: Date in YYYY-MM-DD format
+                amount:
+                  type: number
+                category:
+                  type: string
+                income_expensive:
+                  type: string
+                  enum: [income, expensive]
+                description:
+                  type: string
+      responses:
+        "200":
+          description: Successfully added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: object
 components:
   schemas: {}
   securitySchemes:

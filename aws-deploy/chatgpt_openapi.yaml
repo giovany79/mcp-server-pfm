@@ -31,12 +31,19 @@ paths:
                   type: string
                   format: date
                   description: Start date for filtering (YYYY-MM-DD)
+                end_date:
+                  type: string
+                  format: date
+                  description: End date for filtering (YYYY-MM-DD)
                 year:
                   type: integer
                   description: Filter by year
                 month:
                   type: integer
                   description: Filter by month
+                day:
+                  type: integer
+                  description: Filter by day of month
       responses:
         "200":
           description: Successful response

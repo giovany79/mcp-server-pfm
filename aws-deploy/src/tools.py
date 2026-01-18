@@ -68,16 +68,30 @@ class FinanceTools:
             "transaction_count": int(len(df))
         }
 
-    def list_transactions(self, limit: int = 10, category: Optional[str] = None, start_date: Optional[str] = None, year: Optional[int] = None, month: Optional[int] = None) -> List[Dict[str, Any]]:
+    def list_transactions(
+        self,
+        limit: int = 10,
+        category: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        year: Optional[int] = None,
+        month: Optional[int] = None,
+        day: Optional[int] = None
+    ) -> List[Dict[str, Any]]:
         df = self.load_data()
         
         if year:
             df = df[df['Date'].dt.year == year]
         if month:
             df = df[df['Date'].dt.month == month]
+        if day:
+            df = df[df['Date'].dt.day == day]
         if start_date:
             start_dt = pd.to_datetime(start_date)
             df = df[df['Date'] >= start_dt]
+        if end_date:
+            end_dt = pd.to_datetime(end_date)
+            df = df[df['Date'] <= end_dt]
         if category and category.lower() != 'all':
             df = df[df['Category'].str.contains(category, case=False, na=False)]
             

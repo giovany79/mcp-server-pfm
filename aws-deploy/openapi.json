@@ -102,6 +102,11 @@
                                         "format": "date",
                                         "description": "Filter transactions on or after this date (YYYY-MM-DD)"
                                     },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "Filter transactions on or before this date (YYYY-MM-DD)"
+                                    },
                                     "year": {
                                         "type": "integer",
                                         "description": "Year to filter by"
@@ -109,6 +114,10 @@
                                     "month": {
                                         "type": "integer",
                                         "description": "Month to filter by"
+                                    },
+                                    "day": {
+                                        "type": "integer",
+                                        "description": "Day of month to filter by"
                                     }
                                 }
                             }

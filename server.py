@@ -83,7 +83,15 @@ def calculate_totals(year: Optional[int] = None, month: Optional[int] = None, ca
     }
 
 @mcp.tool()
-def list_transactions(limit: int = 10, category: Optional[str] = None, start_date: Optional[str] = None, year: Optional[int] = None, month: Optional[int] = None) -> str:
+def list_transactions(
+    limit: int = 10,
+    category: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    year: Optional[int] = None,
+    month: Optional[int] = None,
+    day: Optional[int] = None
+) -> str:
     """
     List individual transactions matching criteria.
     
@@ -91,8 +99,10 @@ def list_transactions(limit: int = 10, category: Optional[str] = None, start_dat
         limit: Max number of transactions to return (default 10).
         category: Filter by category name.
         start_date: Filter transactions on or after this date (format YYYY-MM-DD).
+        end_date: Filter transactions on or before this date (format YYYY-MM-DD).
         year: Filter by specific year.
         month: Filter by specific month.
+        day: Filter by specific day of month.
     """
     df = load_data()
     
@@ -101,10 +111,17 @@ def list_transactions(limit: int = 10, category: Optional[str] = None, start_dat
     
     if month:
         df = df[df['Date'].dt.month == month]
+
+    if day:
+        df = df[df['Date'].dt.day == day]
     
     if start_date:
         start_dt = pd.to_datetime(start_date)
         df = df[df['Date'] >= start_dt]
+
+    if end_date:
+        end_dt = pd.to_datetime(end_date)
+        df = df[df['Date'] <= end_dt]
         
     if category:
         df = df[df['Category'].str.contains(category, case=False, na=False)]

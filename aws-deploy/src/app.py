@@ -18,9 +18,17 @@ def calculate_totals(year: Optional[int] = None, month: Optional[int] = None, ca
     return tools.calculate_totals(year, month, category)
 
 @mcp.tool()
-def list_transactions(limit: int = 10, category: Optional[str] = None, start_date: Optional[str] = None, year: Optional[int] = None, month: Optional[int] = None) -> str:
+def list_transactions(
+    limit: int = 10,
+    category: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    year: Optional[int] = None,
+    month: Optional[int] = None,
+    day: Optional[int] = None
+) -> str:
     """List individual transactions matching criteria."""
-    return tools.list_transactions(limit, category, start_date, year, month)
+    return tools.list_transactions(limit, category, start_date, end_date, year, month, day)
 
 @mcp.tool()
 def expenses_by_category(year: Optional[int] = None, month: Optional[int] = None) -> List[Dict[str, float]]:
@@ -112,8 +120,10 @@ def lambda_handler(event, context):
                     limit=int(body.get('limit', 10)),
                     category=body.get('category'),
                     start_date=body.get('start_date'),
+                    end_date=body.get('end_date'),
                     year=int(body.get('year')) if body.get('year') else None,
-                    month=int(body.get('month')) if body.get('month') else None
+                    month=int(body.get('month')) if body.get('month') else None,
+                    day=int(body.get('day')) if body.get('day') else None
                 )
             elif tool_name == 'expenses_by_category':
                 result = tools.expenses_by_category(

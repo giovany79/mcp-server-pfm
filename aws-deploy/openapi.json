@@ -90,7 +90,7 @@
                                 "properties": {
                                     "limit": {
                                         "type": "integer",
-                                        "description": "Max number of transactions to return (default 10)",
+                                        "description": "Max number of transactions to return (default 10). Use 0 or omit to return all.",
                                         "default": 10
                                     },
                                     "category": {

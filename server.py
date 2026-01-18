@@ -84,7 +84,7 @@ def calculate_totals(year: Optional[int] = None, month: Optional[int] = None, ca
 
 @mcp.tool()
 def list_transactions(
-    limit: int = 10,
+    limit: Optional[int] = 10,
     category: Optional[str] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
@@ -129,7 +129,7 @@ def list_transactions(
     # Sort by date desc (most recent first)
     df = df.sort_values(by='Date', ascending=False)
     
-    result = df.head(limit)
+    result = df.head(limit) if limit and limit > 0 else df
     
     # Return as readable string or JSON
     return result.to_json(orient="records", date_format="iso")

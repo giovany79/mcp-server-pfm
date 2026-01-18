@@ -70,7 +70,7 @@ class FinanceTools:
 
     def list_transactions(
         self,
-        limit: int = 10,
+        limit: Optional[int] = 10,
         category: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
@@ -96,7 +96,10 @@ class FinanceTools:
             df = df[df['Category'].str.contains(category, case=False, na=False)]
             
         df = df.sort_values(by='Date', ascending=False)
-        result = df.head(limit).copy()
+        if limit and limit > 0:
+            result = df.head(limit).copy()
+        else:
+            result = df.copy()
         result['Date'] = result['Date'].dt.strftime('%Y-%m-%d')
 
         return result.to_dict(orient="records")

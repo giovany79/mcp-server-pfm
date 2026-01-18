@@ -19,7 +19,7 @@ def calculate_totals(year: Optional[int] = None, month: Optional[int] = None, ca
 
 @mcp.tool()
 def list_transactions(
-    limit: int = 10,
+    limit: Optional[int] = 10,
     category: Optional[str] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
@@ -116,8 +116,9 @@ def lambda_handler(event, context):
                     category=body.get('category')
                 )
             elif tool_name == 'list_transactions':
+                raw_limit = body.get('limit', 10)
                 result = tools.list_transactions(
-                    limit=int(body.get('limit', 10)),
+                    limit=int(raw_limit) if raw_limit is not None else None,
                     category=body.get('category'),
                     start_date=body.get('start_date'),
                     end_date=body.get('end_date'),

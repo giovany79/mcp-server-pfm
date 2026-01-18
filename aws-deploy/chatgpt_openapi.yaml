@@ -22,7 +22,7 @@ paths:
               properties:
                 limit:
                   type: integer
-                  description: Maximum number of transactions to return
+                  description: Maximum number of transactions to return (use 0 or omit to return all)
                   default: 10
                 category:
                   type: string

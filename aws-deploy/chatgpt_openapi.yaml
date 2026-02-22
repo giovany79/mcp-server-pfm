@@ -23,7 +23,7 @@ paths:
                 limit:
                   type: integer
                   description: Maximum number of transactions to return (use 0 or omit to return all)
-                  default: 10
+                  default: 100
                 category:
                   type: string
                   description: Filter by category name

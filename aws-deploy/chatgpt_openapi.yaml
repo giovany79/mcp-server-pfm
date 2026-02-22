@@ -233,6 +233,78 @@ paths:
                   transaction_count:
                     type: integer
 
+  /add_transactions_batch:
+    post:
+      operationId: addTransactionsBatch
+      summary: Add multiple transactions in a single operation
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - transactions
+              properties:
+                transactions:
+                  type: array
+                  minItems: 1
+                  maxItems: 20
+                  items:
+                    type: object
+                    required:
+                      - description
+                      - transaction_type
+                      - amount
+                      - category
+                    properties:
+                      description:
+                        type: string
+                      transaction_type:
+                        type: string
+                        description: income or expensive
+                      amount:
+                        type: number
+                      category:
+                        type: string
+                      date:
+                        type: string
+                        format: date
+                        description: Optional; defaults to today if omitted
+      responses:
+        "200":
+          description: Batch transaction add result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  added_count:
+                    type: integer
+                  transactions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        transaction_id:
+                          type: string
+                        Description:
+                          type: string
+                        Income/expensive:
+                          type: string
+                        Amount:
+                          type: number
+                        Category:
+                          type: string
+                        Date:
+                          type: string
+                  transaction_count:
+                    type: integer
+
   /update_transaction:
     post:
       operationId: updateTransaction

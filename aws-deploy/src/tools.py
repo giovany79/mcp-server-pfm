@@ -15,6 +15,7 @@ class FinanceTools:
         self.s3 = boto3.client('s3')
         self.id_column = "transaction_id"
         self.base_columns = [self.id_column, "Description", "Income/expensive", "Amount", "Category", "Date"]
+        self.max_batch_transactions = 20
 
     def _generate_transaction_ids(self, count: int) -> List[str]:
         return [str(uuid.uuid4()) for _ in range(count)]
@@ -85,6 +86,50 @@ class FinanceTools:
             "Amount": float(row["Amount"]),
             "Category": str(row["Category"]),
             "Date": serialized_date,
+        }
+
+    def _build_transaction_row(
+        self,
+        description: str,
+        transaction_type: str,
+        amount: float,
+        category: str,
+        date: Optional[str] = None
+    ) -> Dict[str, Any]:
+        if not description or not str(description).strip():
+            raise ValueError("Description is required")
+        if not category or not str(category).strip():
+            raise ValueError("Category is required")
+        if not transaction_type or not str(transaction_type).strip():
+            raise ValueError("Transaction type is required")
+
+        normalized_type = str(transaction_type).strip().lower()
+        if normalized_type not in {"income", "expensive"}:
+            raise ValueError("Transaction type must be 'income' or 'expensive'")
+
+        try:
+            amount_value = float(amount)
+        except (TypeError, ValueError):
+            raise ValueError("Amount must be a number")
+
+        if amount_value <= 0:
+            raise ValueError("Amount must be greater than zero")
+
+        if date:
+            try:
+                parsed_date = pd.to_datetime(date, format="mixed", dayfirst=True, errors="raise")
+            except (TypeError, ValueError):
+                raise ValueError("Date must be a valid date string")
+        else:
+            parsed_date = pd.to_datetime(datetime.now().date())
+
+        return {
+            self.id_column: str(uuid.uuid4()),
+            "Description": str(description).strip(),
+            "Income/expensive": normalized_type,
+            "Amount": amount_value,
+            "Category": str(category).strip(),
+            "Date": parsed_date
         }
 
     def load_data(self) -> pd.DataFrame:
@@ -208,43 +253,8 @@ class FinanceTools:
         if not self.bucket_name:
             raise RuntimeError("DATA_BUCKET is not configured")
 
-        if not description or not description.strip():
-            raise ValueError("Description is required")
-        if not category or not category.strip():
-            raise ValueError("Category is required")
-        if not transaction_type or not transaction_type.strip():
-            raise ValueError("Transaction type is required")
-
-        normalized_type = transaction_type.strip().lower()
-        if normalized_type not in {"income", "expensive"}:
-            raise ValueError("Transaction type must be 'income' or 'expensive'")
-
-        try:
-            amount_value = float(amount)
-        except (TypeError, ValueError):
-            raise ValueError("Amount must be a number")
-
-        if amount_value <= 0:
-            raise ValueError("Amount must be greater than zero")
-
-        if date:
-            try:
-                parsed_date = pd.to_datetime(date, format='mixed', dayfirst=True, errors='raise')
-            except (TypeError, ValueError):
-                raise ValueError("Date must be a valid date string")
-        else:
-            parsed_date = pd.to_datetime(datetime.now().date())
-
         df = self.load_data()
-        transaction_id = str(uuid.uuid4())
-        new_row = {
-            self.id_column: transaction_id,
-            "Description": description.strip(),
-            "Income/expensive": normalized_type,
-            "Amount": amount_value,
-            "Category": category.strip(),
-            "Date": parsed_date
-        }
+        new_row = self._build_transaction_row(description, transaction_type, amount, category, date)
 
         updated = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
         self._save_dataframe(updated)
@@ -252,6 +262,41 @@ class FinanceTools:
         return {
             "status": "ok",
             "transaction": self._serialize_transaction(pd.Series(new_row)),
+            "transaction_count": int(len(updated))
+        }
+
+    def add_transactions_batch(self, transactions: List[Dict[str, Any]]) -> Dict[str, Any]:
+        if not self.bucket_name:
+            raise RuntimeError("DATA_BUCKET is not configured")
+        if not isinstance(transactions, list) or len(transactions) == 0:
+            raise ValueError("transactions must be a non-empty list")
+        if len(transactions) > self.max_batch_transactions:
+            raise ValueError(f"Maximum {self.max_batch_transactions} transactions per batch")
+
+        new_rows: List[Dict[str, Any]] = []
+        for index, tx in enumerate(transactions):
+            if not isinstance(tx, dict):
+                raise ValueError(f"Transaction at index {index} must be an object")
+            try:
+                row = self._build_transaction_row(
+                    description=tx.get("description"),
+                    transaction_type=tx.get("transaction_type"),
+                    amount=tx.get("amount"),
+                    category=tx.get("category"),
+                    date=tx.get("date"),
+                )
+            except ValueError as exc:
+                raise ValueError(f"Invalid transaction at index {index}: {str(exc)}")
+            new_rows.append(row)
+
+        df = self.load_data()
+        updated = pd.concat([df, pd.DataFrame(new_rows)], ignore_index=True)
+        self._save_dataframe(updated)
+
+        return {
+            "status": "ok",
+            "added_count": len(new_rows),
+            "transactions": [self._serialize_transaction(pd.Series(row)) for row in new_rows],
             "transaction_count": int(len(updated))
         }
 

@@ -10,6 +10,7 @@ mcp = FastMCP("Personal Finance Manager")
 DATA_PATH = "pfm-gio.csv"
 ID_COLUMN = "transaction_id"
 BASE_COLUMNS = [ID_COLUMN, "Description", "Income/expensive", "Amount", "Category", "Date"]
+MAX_BATCH_TRANSACTIONS = 20
 
 
 def _generate_transaction_ids(count: int) -> List[str]:
@@ -73,6 +74,50 @@ def _serialize_transaction(row: pd.Series) -> Dict[str, Any]:
         "Amount": float(row["Amount"]),
         "Category": str(row["Category"]),
         "Date": serialized_date,
+    }
+
+
+def _build_transaction_row(
+    description: str,
+    transaction_type: str,
+    amount: float,
+    category: str,
+    date: Optional[str] = None
+) -> Dict[str, Any]:
+    if not description or not str(description).strip():
+        raise ValueError("Description is required")
+    if not category or not str(category).strip():
+        raise ValueError("Category is required")
+    if not transaction_type or not str(transaction_type).strip():
+        raise ValueError("Transaction type is required")
+
+    normalized_type = str(transaction_type).strip().lower()
+    if normalized_type not in {"income", "expensive"}:
+        raise ValueError("Transaction type must be 'income' or 'expensive'")
+
+    try:
+        amount_value = float(amount)
+    except (TypeError, ValueError):
+        raise ValueError("Amount must be a number")
+
+    if amount_value <= 0:
+        raise ValueError("Amount must be greater than zero")
+
+    if date:
+        try:
+            parsed_date = pd.to_datetime(date, format="mixed", dayfirst=True, errors="raise")
+        except (TypeError, ValueError):
+            raise ValueError("Date must be a valid date string")
+    else:
+        parsed_date = pd.to_datetime(datetime.now().date())
+
+    return {
+        ID_COLUMN: str(uuid.uuid4()),
+        "Description": str(description).strip(),
+        "Income/expensive": normalized_type,
+        "Amount": amount_value,
+        "Category": str(category).strip(),
+        "Date": parsed_date,
     }
 
 def load_data() -> pd.DataFrame:
@@ -254,43 +299,8 @@ def add_transaction(
         category: Category name.
         date: Optional date string (YYYY-MM-DD or similar).
     """
-    if not description or not description.strip():
-        raise ValueError("Description is required")
-    if not category or not category.strip():
-        raise ValueError("Category is required")
-    if not transaction_type or not transaction_type.strip():
-        raise ValueError("Transaction type is required")
-
-    normalized_type = transaction_type.strip().lower()
-    if normalized_type not in {"income", "expensive"}:
-        raise ValueError("Transaction type must be 'income' or 'expensive'")
-
-    try:
-        amount_value = float(amount)
-    except (TypeError, ValueError):
-        raise ValueError("Amount must be a number")
-
-    if amount_value <= 0:
-        raise ValueError("Amount must be greater than zero")
-
-    if date:
-        try:
-            parsed_date = pd.to_datetime(date, format='mixed', dayfirst=True, errors='raise')
-        except (TypeError, ValueError):
-            raise ValueError("Date must be a valid date string")
-    else:
-        parsed_date = pd.to_datetime(datetime.now().date())
-
     df = load_data()
-    transaction_id = str(uuid.uuid4())
-    new_row = {
-        ID_COLUMN: transaction_id,
-        "Description": description.strip(),
-        "Income/expensive": normalized_type,
-        "Amount": amount_value,
-        "Category": category.strip(),
-        "Date": parsed_date
-    }
+    new_row = _build_transaction_row(description, transaction_type, amount, category, date)
 
     updated = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     _persist_dataframe(updated)
@@ -298,6 +308,44 @@ def add_transaction(
     return {
         "status": "ok",
         "transaction": _serialize_transaction(pd.Series(new_row)),
+        "transaction_count": int(len(updated))
+    }
+
+
+@mcp.tool()
+def add_transactions_batch(transactions: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Add multiple transactions in a single operation (max 20).
+    """
+    if not isinstance(transactions, list) or len(transactions) == 0:
+        raise ValueError("transactions must be a non-empty list")
+    if len(transactions) > MAX_BATCH_TRANSACTIONS:
+        raise ValueError(f"Maximum {MAX_BATCH_TRANSACTIONS} transactions per batch")
+
+    new_rows: List[Dict[str, Any]] = []
+    for index, tx in enumerate(transactions):
+        if not isinstance(tx, dict):
+            raise ValueError(f"Transaction at index {index} must be an object")
+        try:
+            row = _build_transaction_row(
+                description=tx.get("description"),
+                transaction_type=tx.get("transaction_type"),
+                amount=tx.get("amount"),
+                category=tx.get("category"),
+                date=tx.get("date"),
+            )
+        except ValueError as exc:
+            raise ValueError(f"Invalid transaction at index {index}: {str(exc)}")
+        new_rows.append(row)
+
+    df = load_data()
+    updated = pd.concat([df, pd.DataFrame(new_rows)], ignore_index=True)
+    _persist_dataframe(updated)
+
+    return {
+        "status": "ok",
+        "added_count": len(new_rows),
+        "transactions": [_serialize_transaction(pd.Series(row)) for row in new_rows],
         "transaction_count": int(len(updated))
     }
 

@@ -52,6 +52,11 @@ def add_transaction(
     return tools.add_transaction(description, transaction_type, amount, category, date)
 
 @mcp.tool()
+def add_transactions_batch(transactions: List[Dict[str, object]]) -> Dict[str, object]:
+    """Add multiple transactions in a single operation (max 20)."""
+    return tools.add_transactions_batch(transactions)
+
+@mcp.tool()
 def update_transaction(
     transaction_id: str,
     description: Optional[str] = None,
@@ -160,6 +165,10 @@ def lambda_handler(event, context):
                     amount=body.get('amount'),
                     category=body.get('category', ''),
                     date=body.get('date')
+                )
+            elif tool_name == 'add_transactions_batch':
+                result = tools.add_transactions_batch(
+                    transactions=body.get('transactions', [])
                 )
             elif tool_name == 'update_transaction':
                 result = tools.update_transaction(

@@ -35,7 +35,8 @@ Uso de herramientas
 1. Para análisis: primero `calculate_totals`; luego `list_transactions` solo si hace falta detalle.
 2. Para listar movimientos: usa `list_transactions` con límite alto o sin límite para traer todos cuando no se indique límite.
 3. Para agregar movimientos: antes de ejecutar `add_transaction`, muestra una previsualización clara y visual (con iconos) de cómo quedará.
-4. Para editar/eliminar, confirma `transaction_id` correcto antes de ejecutar `update_transaction` o `delete_transaction`.
+4. Si el usuario pide crear 2 o más movimientos, usa `add_transactions_batch` (máximo 20 por operación).
+5. Para editar/eliminar, confirma `transaction_id` correcto antes de ejecutar `update_transaction` o `delete_transaction`.
 
 Formato de respuesta
 1. Primero: resumen breve (1-3 líneas).

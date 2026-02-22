@@ -2,37 +2,90 @@ from mcp.server.fastmcp import FastMCP
 import pandas as pd
 from datetime import datetime
 from typing import List, Optional, Dict, Any
+import uuid
 
 # Create an MCP Server
 mcp = FastMCP("Personal Finance Manager")
 
 DATA_PATH = "pfm-gio.csv"
+ID_COLUMN = "transaction_id"
+BASE_COLUMNS = [ID_COLUMN, "Description", "Income/expensive", "Amount", "Category", "Date"]
+
+
+def _generate_transaction_ids(count: int) -> List[str]:
+    return [str(uuid.uuid4()) for _ in range(count)]
+
+
+def _normalize_dataframe(df: pd.DataFrame) -> tuple[pd.DataFrame, bool]:
+    changed = False
+
+    df.columns = [c.strip() for c in df.columns]
+
+    required = {"Description", "Income/expensive", "Amount", "Category", "Date"}
+    missing_required = required.difference(df.columns)
+    if missing_required:
+        raise ValueError(f"Missing required columns: {sorted(missing_required)}")
+
+    if df["Amount"].dtype == "object":
+        df["Amount"] = df["Amount"].astype(str).str.replace(r"[$. ]", "", regex=True)
+    df["Amount"] = pd.to_numeric(df["Amount"], errors="coerce")
+    df = df.dropna(subset=["Amount"])
+
+    df["Date"] = pd.to_datetime(df["Date"], format="mixed", dayfirst=True, errors="coerce")
+    df = df.dropna(subset=["Date"])
+
+    if ID_COLUMN not in df.columns:
+        df[ID_COLUMN] = _generate_transaction_ids(len(df))
+        changed = True
+    else:
+        ids = df[ID_COLUMN].astype("string")
+        missing_mask = ids.isna() | ids.str.strip().eq("")
+        if missing_mask.any():
+            df.loc[missing_mask, ID_COLUMN] = _generate_transaction_ids(int(missing_mask.sum()))
+            changed = True
+        df[ID_COLUMN] = df[ID_COLUMN].astype(str).str.strip()
+
+    return df, changed
+
+
+def _persist_dataframe(df: pd.DataFrame) -> None:
+    output = df.copy()
+    if "Date" in output.columns:
+        output["Date"] = pd.to_datetime(output["Date"], errors="coerce").dt.strftime("%Y-%m-%d")
+
+    ordered_cols = [c for c in BASE_COLUMNS if c in output.columns]
+    remaining_cols = [c for c in output.columns if c not in ordered_cols]
+    output = output[ordered_cols + remaining_cols]
+    output.to_csv(DATA_PATH, sep=";", index=False)
+
+
+def _serialize_transaction(row: pd.Series) -> Dict[str, Any]:
+    date_value = row["Date"]
+    if pd.isna(date_value):
+        serialized_date = None
+    else:
+        serialized_date = pd.to_datetime(date_value).strftime("%Y-%m-%d")
+
+    return {
+        ID_COLUMN: str(row[ID_COLUMN]),
+        "Description": str(row["Description"]),
+        "Income/expensive": str(row["Income/expensive"]),
+        "Amount": float(row["Amount"]),
+        "Category": str(row["Category"]),
+        "Date": serialized_date,
+    }
 
 def load_data() -> pd.DataFrame:
     """Loads and cleans the financial data from CSV."""
     try:
-        # Read encoded with utf-8 or latin-1, delimiter is ';'
-        df = pd.read_csv(DATA_PATH, sep=";", encoding="utf-8")
-        
-        # Clean column names (strip spaces)
-        df.columns = [c.strip() for c in df.columns]
-        
-        # Clean Amount column
-        # Remove '$', '.', and spaces. 
-        # Note: valid for currency format like $1.000.000 (where . is thousand separator)
-        if df['Amount'].dtype == 'object':
-            df['Amount'] = df['Amount'].astype(str).str.replace(r'[$. ]', '', regex=True)
-            df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce')
-            
-        # Drop rows where Amount is NaN (invalid or missing)
-        df = df.dropna(subset=['Amount'])
+        try:
+            df = pd.read_csv(DATA_PATH, sep=";", encoding="utf-8")
+        except UnicodeDecodeError:
+            df = pd.read_csv(DATA_PATH, sep=";", encoding="latin-1")
 
-        # Convert Date to datetime handling mixed formats (likely DD/MM/YY)
-        df['Date'] = pd.to_datetime(df['Date'], format='mixed', dayfirst=True, errors='coerce')
-        
-        # Drop rows with invalid dates
-        df = df.dropna(subset=['Date'])
-        
+        df, changed = _normalize_dataframe(df)
+        if changed:
+            _persist_dataframe(df)
         return df
     except Exception as e:
         raise RuntimeError(f"Error loading data: {str(e)}")
@@ -229,7 +282,9 @@ def add_transaction(
         parsed_date = pd.to_datetime(datetime.now().date())
 
     df = load_data()
+    transaction_id = str(uuid.uuid4())
     new_row = {
+        ID_COLUMN: transaction_id,
         "Description": description.strip(),
         "Income/expensive": normalized_type,
         "Amount": amount_value,
@@ -238,18 +293,102 @@ def add_transaction(
     }
 
     updated = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-    updated = updated[["Description", "Income/expensive", "Amount", "Category", "Date"]]
-    updated.to_csv(DATA_PATH, sep=";", index=False)
+    _persist_dataframe(updated)
 
     return {
         "status": "ok",
-        "transaction": {
-            "Description": new_row["Description"],
-            "Income/expensive": new_row["Income/expensive"],
-            "Amount": float(new_row["Amount"]),
-            "Category": new_row["Category"],
-            "Date": parsed_date.strftime("%Y-%m-%d")
-        },
+        "transaction": _serialize_transaction(pd.Series(new_row)),
+        "transaction_count": int(len(updated))
+    }
+
+
+@mcp.tool()
+def update_transaction(
+    transaction_id: str,
+    description: Optional[str] = None,
+    transaction_type: Optional[str] = None,
+    amount: Optional[float] = None,
+    category: Optional[str] = None,
+    date: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Update an existing transaction by transaction_id.
+    """
+    if not transaction_id or not transaction_id.strip():
+        raise ValueError("transaction_id is required")
+
+    if all(v is None for v in [description, transaction_type, amount, category, date]):
+        raise ValueError("At least one field must be provided to update")
+
+    df = load_data()
+    row_mask = df[ID_COLUMN].astype(str) == transaction_id.strip()
+    if not row_mask.any():
+        raise ValueError(f"Transaction not found: {transaction_id}")
+
+    idx = df[row_mask].index[0]
+
+    if description is not None:
+        if not description.strip():
+            raise ValueError("Description cannot be empty")
+        df.at[idx, "Description"] = description.strip()
+
+    if transaction_type is not None:
+        normalized_type = transaction_type.strip().lower()
+        if normalized_type not in {"income", "expensive"}:
+            raise ValueError("Transaction type must be 'income' or 'expensive'")
+        df.at[idx, "Income/expensive"] = normalized_type
+
+    if amount is not None:
+        try:
+            amount_value = float(amount)
+        except (TypeError, ValueError):
+            raise ValueError("Amount must be a number")
+        if amount_value <= 0:
+            raise ValueError("Amount must be greater than zero")
+        df.at[idx, "Amount"] = amount_value
+
+    if category is not None:
+        if not category.strip():
+            raise ValueError("Category cannot be empty")
+        df.at[idx, "Category"] = category.strip()
+
+    if date is not None:
+        try:
+            parsed_date = pd.to_datetime(date, format="mixed", dayfirst=True, errors="raise")
+        except (TypeError, ValueError):
+            raise ValueError("Date must be a valid date string")
+        df.at[idx, "Date"] = parsed_date
+
+    _persist_dataframe(df)
+    updated_transaction = _serialize_transaction(df.loc[idx])
+
+    return {
+        "status": "ok",
+        "transaction": updated_transaction,
+        "transaction_count": int(len(df))
+    }
+
+
+@mcp.tool()
+def delete_transaction(transaction_id: str) -> Dict[str, Any]:
+    """
+    Delete a transaction by transaction_id.
+    """
+    if not transaction_id or not transaction_id.strip():
+        raise ValueError("transaction_id is required")
+
+    df = load_data()
+    row_mask = df[ID_COLUMN].astype(str) == transaction_id.strip()
+    if not row_mask.any():
+        raise ValueError(f"Transaction not found: {transaction_id}")
+
+    deleted_row = df[row_mask].iloc[0]
+    updated = df[~row_mask].copy()
+    _persist_dataframe(updated)
+
+    return {
+        "status": "ok",
+        "deleted_transaction": _serialize_transaction(deleted_row),
         "transaction_count": int(len(updated))
     }
 

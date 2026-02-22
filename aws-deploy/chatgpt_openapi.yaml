@@ -54,6 +54,8 @@ paths:
                 items:
                   type: object
                   properties:
+                    transaction_id:
+                      type: string
                     Date:
                       type: string
                     Category:
@@ -216,6 +218,116 @@ paths:
                   transaction:
                     type: object
                     properties:
+                      transaction_id:
+                        type: string
+                      Description:
+                        type: string
+                      Income/expensive:
+                        type: string
+                      Amount:
+                        type: number
+                      Category:
+                        type: string
+                      Date:
+                        type: string
+                  transaction_count:
+                    type: integer
+
+  /update_transaction:
+    post:
+      operationId: updateTransaction
+      summary: Update an existing transaction
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - transaction_id
+              properties:
+                transaction_id:
+                  type: string
+                  description: Stable transaction identifier
+                description:
+                  type: string
+                  description: Updated description
+                transaction_type:
+                  type: string
+                  description: Updated transaction type (income or expensive)
+                amount:
+                  type: number
+                  description: Updated amount (positive number)
+                category:
+                  type: string
+                  description: Updated category
+                date:
+                  type: string
+                  format: date
+                  description: Updated transaction date (YYYY-MM-DD)
+      responses:
+        "200":
+          description: Transaction updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  transaction:
+                    type: object
+                    properties:
+                      transaction_id:
+                        type: string
+                      Description:
+                        type: string
+                      Income/expensive:
+                        type: string
+                      Amount:
+                        type: number
+                      Category:
+                        type: string
+                      Date:
+                        type: string
+                  transaction_count:
+                    type: integer
+
+  /delete_transaction:
+    post:
+      operationId: deleteTransaction
+      summary: Delete a transaction
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - transaction_id
+              properties:
+                transaction_id:
+                  type: string
+                  description: Stable transaction identifier
+      responses:
+        "200":
+          description: Transaction deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  deleted_transaction:
+                    type: object
+                    properties:
+                      transaction_id:
+                        type: string
                       Description:
                         type: string
                       Income/expensive:

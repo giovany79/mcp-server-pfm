@@ -4,6 +4,7 @@ import io
 import os
 from datetime import datetime
 from typing import Optional, Dict, List, Any
+import uuid
 
 class FinanceTools:
     def __init__(self):
@@ -12,6 +13,79 @@ class FinanceTools:
         self.file_key = "pfm-gio.csv"
         self._df = None
         self.s3 = boto3.client('s3')
+        self.id_column = "transaction_id"
+        self.base_columns = [self.id_column, "Description", "Income/expensive", "Amount", "Category", "Date"]
+
+    def _generate_transaction_ids(self, count: int) -> List[str]:
+        return [str(uuid.uuid4()) for _ in range(count)]
+
+    def _normalize_dataframe(self, df: pd.DataFrame) -> tuple[pd.DataFrame, bool]:
+        changed = False
+
+        df.columns = [c.strip() for c in df.columns]
+
+        required = {"Description", "Income/expensive", "Amount", "Category", "Date"}
+        missing_required = required.difference(df.columns)
+        if missing_required:
+            raise ValueError(f"Missing required columns: {sorted(missing_required)}")
+
+        if df["Amount"].dtype == "object":
+            df["Amount"] = df["Amount"].astype(str).str.replace(r"[$. ]", "", regex=True)
+        df["Amount"] = pd.to_numeric(df["Amount"], errors="coerce")
+        df = df.dropna(subset=["Amount"])
+
+        df["Date"] = pd.to_datetime(df["Date"], format="mixed", dayfirst=True, errors="coerce")
+        df = df.dropna(subset=["Date"])
+
+        if self.id_column not in df.columns:
+            df[self.id_column] = self._generate_transaction_ids(len(df))
+            changed = True
+        else:
+            ids = df[self.id_column].astype("string")
+            missing_mask = ids.isna() | ids.str.strip().eq("")
+            if missing_mask.any():
+                df.loc[missing_mask, self.id_column] = self._generate_transaction_ids(int(missing_mask.sum()))
+                changed = True
+            df[self.id_column] = df[self.id_column].astype(str).str.strip()
+
+        return df, changed
+
+    def _write_dataframe_to_s3(self, df: pd.DataFrame) -> None:
+        output = df.copy()
+        if "Date" in output.columns:
+            output["Date"] = pd.to_datetime(output["Date"], errors="coerce").dt.strftime("%Y-%m-%d")
+
+        ordered_cols = [c for c in self.base_columns if c in output.columns]
+        remaining_cols = [c for c in output.columns if c not in ordered_cols]
+        output = output[ordered_cols + remaining_cols]
+
+        buffer = io.StringIO()
+        output.to_csv(buffer, sep=";", index=False)
+        self.s3.put_object(
+            Bucket=self.bucket_name,
+            Key=self.file_key,
+            Body=buffer.getvalue().encode("utf-8")
+        )
+
+    def _save_dataframe(self, df: pd.DataFrame) -> None:
+        self._write_dataframe_to_s3(df)
+        self._df = df.copy()
+
+    def _serialize_transaction(self, row: pd.Series) -> Dict[str, Any]:
+        date_value = row["Date"]
+        if pd.isna(date_value):
+            serialized_date = None
+        else:
+            serialized_date = pd.to_datetime(date_value).strftime("%Y-%m-%d")
+
+        return {
+            self.id_column: str(row[self.id_column]),
+            "Description": str(row["Description"]),
+            "Income/expensive": str(row["Income/expensive"]),
+            "Amount": float(row["Amount"]),
+            "Category": str(row["Category"]),
+            "Date": serialized_date,
+        }
 
     def load_data(self) -> pd.DataFrame:
         """Loads data from S3, caching it in memory for the lambda execution context."""
@@ -26,21 +100,9 @@ class FinanceTools:
             # Read CSV from bytes
             df = pd.read_csv(io.BytesIO(csv_content), sep=";", encoding="utf-8")
             
-            # --- CLEANING LOGIC (Same as server.py) ---
-            df.columns = [c.strip() for c in df.columns]
-            
-            # Clean Amount
-            if df['Amount'].dtype == 'object':
-                df['Amount'] = df['Amount'].astype(str).str.replace(r'[$. ]', '', regex=True)
-                df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce')
-                
-            df = df.dropna(subset=['Amount'])
-            
-            # Clean Dates (handling mixed formats)
-            df['Date'] = pd.to_datetime(df['Date'], format='mixed', dayfirst=True, errors='coerce')
-            df = df.dropna(subset=['Date'])
-            # ------------------------------------------
-            
+            df, changed = self._normalize_dataframe(df)
+            if changed:
+                self._write_dataframe_to_s3(df)
             self._df = df
             return df
         except Exception as e:
@@ -174,7 +236,9 @@ class FinanceTools:
             parsed_date = pd.to_datetime(datetime.now().date())
 
         df = self.load_data()
+        transaction_id = str(uuid.uuid4())
         new_row = {
+            self.id_column: transaction_id,
             "Description": description.strip(),
             "Income/expensive": normalized_type,
             "Amount": amount_value,
@@ -183,26 +247,92 @@ class FinanceTools:
         }
 
         updated = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-        updated = updated[["Description", "Income/expensive", "Amount", "Category", "Date"]]
-
-        buffer = io.StringIO()
-        updated.to_csv(buffer, sep=";", index=False)
-        self.s3.put_object(
-            Bucket=self.bucket_name,
-            Key=self.file_key,
-            Body=buffer.getvalue().encode("utf-8")
-        )
-
-        self._df = updated
+        self._save_dataframe(updated)
 
         return {
             "status": "ok",
-            "transaction": {
-                "Description": new_row["Description"],
-                "Income/expensive": new_row["Income/expensive"],
-                "Amount": float(new_row["Amount"]),
-                "Category": new_row["Category"],
-                "Date": parsed_date.strftime("%Y-%m-%d")
-            },
+            "transaction": self._serialize_transaction(pd.Series(new_row)),
+            "transaction_count": int(len(updated))
+        }
+
+    def update_transaction(
+        self,
+        transaction_id: str,
+        description: Optional[str] = None,
+        transaction_type: Optional[str] = None,
+        amount: Optional[float] = None,
+        category: Optional[str] = None,
+        date: Optional[str] = None
+    ) -> Dict[str, Any]:
+        if not transaction_id or not transaction_id.strip():
+            raise ValueError("transaction_id is required")
+
+        if all(v is None for v in [description, transaction_type, amount, category, date]):
+            raise ValueError("At least one field must be provided to update")
+
+        df = self.load_data()
+        row_mask = df[self.id_column].astype(str) == transaction_id.strip()
+        if not row_mask.any():
+            raise ValueError(f"Transaction not found: {transaction_id}")
+
+        idx = df[row_mask].index[0]
+
+        if description is not None:
+            if not description.strip():
+                raise ValueError("Description cannot be empty")
+            df.at[idx, "Description"] = description.strip()
+
+        if transaction_type is not None:
+            normalized_type = transaction_type.strip().lower()
+            if normalized_type not in {"income", "expensive"}:
+                raise ValueError("Transaction type must be 'income' or 'expensive'")
+            df.at[idx, "Income/expensive"] = normalized_type
+
+        if amount is not None:
+            try:
+                amount_value = float(amount)
+            except (TypeError, ValueError):
+                raise ValueError("Amount must be a number")
+            if amount_value <= 0:
+                raise ValueError("Amount must be greater than zero")
+            df.at[idx, "Amount"] = amount_value
+
+        if category is not None:
+            if not category.strip():
+                raise ValueError("Category cannot be empty")
+            df.at[idx, "Category"] = category.strip()
+
+        if date is not None:
+            try:
+                parsed_date = pd.to_datetime(date, format="mixed", dayfirst=True, errors="raise")
+            except (TypeError, ValueError):
+                raise ValueError("Date must be a valid date string")
+            df.at[idx, "Date"] = parsed_date
+
+        self._save_dataframe(df)
+        updated_transaction = self._serialize_transaction(df.loc[idx])
+
+        return {
+            "status": "ok",
+            "transaction": updated_transaction,
+            "transaction_count": int(len(df))
+        }
+
+    def delete_transaction(self, transaction_id: str) -> Dict[str, Any]:
+        if not transaction_id or not transaction_id.strip():
+            raise ValueError("transaction_id is required")
+
+        df = self.load_data()
+        row_mask = df[self.id_column].astype(str) == transaction_id.strip()
+        if not row_mask.any():
+            raise ValueError(f"Transaction not found: {transaction_id}")
+
+        deleted_row = df[row_mask].iloc[0]
+        updated = df[~row_mask].copy()
+        self._save_dataframe(updated)
+
+        return {
+            "status": "ok",
+            "deleted_transaction": self._serialize_transaction(deleted_row),
             "transaction_count": int(len(updated))
         }

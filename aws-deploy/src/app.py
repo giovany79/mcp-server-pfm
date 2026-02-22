@@ -51,6 +51,23 @@ def add_transaction(
     """Add a new transaction to the dataset."""
     return tools.add_transaction(description, transaction_type, amount, category, date)
 
+@mcp.tool()
+def update_transaction(
+    transaction_id: str,
+    description: Optional[str] = None,
+    transaction_type: Optional[str] = None,
+    amount: Optional[float] = None,
+    category: Optional[str] = None,
+    date: Optional[str] = None
+) -> Dict[str, object]:
+    """Update an existing transaction by transaction_id."""
+    return tools.update_transaction(transaction_id, description, transaction_type, amount, category, date)
+
+@mcp.tool()
+def delete_transaction(transaction_id: str) -> Dict[str, object]:
+    """Delete a transaction by transaction_id."""
+    return tools.delete_transaction(transaction_id)
+
 # Initialize Mangum handler for MCP (ASGI)
 # This handles the SSE endpoints automatically provided by FastMCP
 asgi_handler = Mangum(mcp.sse_app)
@@ -143,6 +160,19 @@ def lambda_handler(event, context):
                     amount=body.get('amount'),
                     category=body.get('category', ''),
                     date=body.get('date')
+                )
+            elif tool_name == 'update_transaction':
+                result = tools.update_transaction(
+                    transaction_id=body.get('transaction_id', ''),
+                    description=body.get('description'),
+                    transaction_type=body.get('transaction_type'),
+                    amount=body.get('amount'),
+                    category=body.get('category'),
+                    date=body.get('date')
+                )
+            elif tool_name == 'delete_transaction':
+                result = tools.delete_transaction(
+                    transaction_id=body.get('transaction_id', '')
                 )
             else:
                 return {'statusCode': 404, 'headers': headers, 'body': json.dumps({'error': 'Tool not found'})}

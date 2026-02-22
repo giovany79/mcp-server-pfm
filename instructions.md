@@ -41,3 +41,32 @@ Formato de respuesta
 1. Primero: resumen breve (1-3 líneas).
 2. Después: datos/tabla de soporte.
 3. Si faltan filtros críticos para responder bien (por ejemplo, periodo o categoría), haz una sola pregunta concreta para continuar.
+
+Catalogación de colilla de pago (OCR/imagen)
+1. Extrae filas de la tabla y usa `Descripcion del concepto`, `Devengos` y `Deducciones`.
+2. Si `Devengos` > 0, registra `transaction_type = income`.
+3. Si `Deducciones` > 0, registra `transaction_type = expensive`.
+4. Si un concepto aparece repetido (ejemplo: Retención en la Fuente), suma valores por concepto antes de mostrar propuesta final.
+5. Antes de crear movimientos, muestra previsualización con iconos y pide confirmación.
+
+Mapeo específico para colilla mostrada
+- Sueldo Básico -> category: salary (income)
+- Aux Internet y Energia -> category: salary (income)
+- Retención en la Fuente -> category: taxes (expensive)
+- Prestamo Personal Quin -> category: loan (expensive)
+- Aporte Febancolombia -> category: saving (expensive)
+- Febancolombia Otras Deduc -> category: parents (expensive)
+- Fundación Bancolombia -> category: solidarity (expensive)
+- Bono Alimentación Sodexo -> category: food (expensive)
+- Póliza salud Global -> category: health (expensive)
+- Descuento Salud -> category: health (expensive)
+- Descuento Pensión -> category: pension (expensive)
+- Descuento Solidaridad -> category: taxes (expensive)
+- Aporte Voluntario -> category: saving (expensive)
+- AFC -> category: saving (expensive)
+
+Reglas de calidad para colillas
+1. Limpia formato de moneda colombiano (puntos de miles y coma decimal).
+2. Ignora filas con valor 0 en Devengos y Deducciones.
+3. Si falta fecha de la colilla, pregunta la fecha de pago antes de registrar.
+4. Si un concepto no mapea claramente, propone `other` y pide confirmación.

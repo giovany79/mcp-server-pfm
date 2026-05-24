@@ -19,6 +19,16 @@ invalid date;expensive;100;home;bad-date
 """
 
 
+SAMPLE_BALANCE_SHEET_CSV = """item_id;snapshot_date;name;kind;category;amount;currency;institution;notes
+asset-cash-jan;2025-01-31;Cuenta ahorros;asset;cash;10000;COP;Bancolombia;
+asset-invest-jan;2025-01-31;Inversiones;asset;investments;30000;COP;;
+liability-card-jan;2025-01-31;Tarjeta credito;liability;credit_card;5000;COP;Visa;
+asset-cash-feb;2025-02-28;Cuenta ahorros;asset;cash;12000;COP;Bancolombia;
+asset-invest-feb;2025-02-28;Inversiones;asset;investments;32000;COP;;
+liability-card-feb;2025-02-28;Tarjeta credito;liability;credit_card;4000;COP;Visa;
+"""
+
+
 class Body:
     def __init__(self, data: bytes):
         self._data = data
@@ -28,15 +38,25 @@ class Body:
 
 
 class FakeS3:
-    def __init__(self, csv_text: str):
+    def __init__(self, csv_text: str, objects=None):
         self.csv_text = csv_text
+        self.objects = {"pfm-gio.csv": csv_text}
+        if objects:
+            self.objects.update(objects)
         self.put_calls = []
 
     def get_object(self, Bucket: str, Key: str):
-        return {"Body": Body(self.csv_text.encode("utf-8"))}
+        if Key not in self.objects:
+            error = Exception("NoSuchKey")
+            error.response = {"Error": {"Code": "NoSuchKey"}}
+            raise error
+        return {"Body": Body(self.objects[Key].encode("utf-8"))}
 
     def put_object(self, Bucket: str, Key: str, Body: bytes):
-        self.csv_text = Body.decode("utf-8")
+        text = Body.decode("utf-8")
+        self.objects[Key] = text
+        if Key == "pfm-gio.csv":
+            self.csv_text = text
         self.put_calls.append({"Bucket": Bucket, "Key": Key, "Body": Body})
 
 

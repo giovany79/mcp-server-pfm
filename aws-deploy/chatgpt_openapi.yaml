@@ -171,6 +171,273 @@ paths:
                     total:
                       type: number
 
+  /list_balance_items:
+    post:
+      operationId: listBalanceItems
+      summary: List balance sheet items
+      description: Lists assets and liabilities from balance-sheet.csv. If snapshot_date is omitted, the latest snapshot is used.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                snapshot_date:
+                  type: string
+                  format: date
+                  description: Balance sheet snapshot date (YYYY-MM-DD). Defaults to the latest available snapshot.
+                kind:
+                  type: string
+                  description: Filter by asset or liability.
+                  enum: [asset, liability]
+                category:
+                  type: string
+                  description: Filter by balance item category.
+                limit:
+                  type: integer
+                  description: Maximum number of items to return. Use 0 or omit to return all.
+                  default: 0
+      responses:
+        "200":
+          description: Balance sheet items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    item_id:
+                      type: string
+                    snapshot_date:
+                      type: string
+                    name:
+                      type: string
+                    kind:
+                      type: string
+                    category:
+                      type: string
+                    amount:
+                      type: number
+                    currency:
+                      type: string
+                    institution:
+                      type: string
+                    notes:
+                      type: string
+
+  /calculate_net_worth:
+    post:
+      operationId: calculateNetWorth
+      summary: Calculate net worth
+      description: Calculates total assets, liabilities, and net worth from balance-sheet.csv.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                snapshot_date:
+                  type: string
+                  format: date
+                  description: Balance sheet snapshot date (YYYY-MM-DD). Defaults to the latest available snapshot.
+      responses:
+        "200":
+          description: Net worth summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshot_date:
+                    type: string
+                  assets:
+                    type: number
+                  liabilities:
+                    type: number
+                  net_worth:
+                    type: number
+                  item_count:
+                    type: integer
+
+  /net_worth_history:
+    post:
+      operationId: netWorthHistory
+      summary: Calculate net worth history
+      description: Calculates net worth totals for every snapshot date in balance-sheet.csv.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        "200":
+          description: Net worth history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    snapshot_date:
+                      type: string
+                    assets:
+                      type: number
+                    liabilities:
+                      type: number
+                    net_worth:
+                      type: number
+                    item_count:
+                      type: integer
+
+  /add_balance_item:
+    post:
+      operationId: addBalanceItem
+      summary: Add a balance sheet item
+      description: Adds an asset or liability row to balance-sheet.csv.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - kind
+                - amount
+                - category
+              properties:
+                name:
+                  type: string
+                kind:
+                  type: string
+                  enum: [asset, liability]
+                amount:
+                  type: number
+                  description: Positive item amount.
+                category:
+                  type: string
+                snapshot_date:
+                  type: string
+                  format: date
+                  description: Snapshot date (YYYY-MM-DD). Defaults to today if omitted.
+                currency:
+                  type: string
+                  default: COP
+                institution:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        "200":
+          description: Balance item added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  item:
+                    type: object
+                  item_count:
+                    type: integer
+
+  /update_balance_item:
+    post:
+      operationId: updateBalanceItem
+      summary: Update a balance sheet item
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - item_id
+              properties:
+                item_id:
+                  type: string
+                name:
+                  type: string
+                kind:
+                  type: string
+                  enum: [asset, liability]
+                amount:
+                  type: number
+                category:
+                  type: string
+                snapshot_date:
+                  type: string
+                  format: date
+                currency:
+                  type: string
+                institution:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        "200":
+          description: Balance item updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  item:
+                    type: object
+                  item_count:
+                    type: integer
+
+  /delete_balance_item:
+    post:
+      operationId: deleteBalanceItem
+      summary: Delete a balance sheet item
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - item_id
+              properties:
+                item_id:
+                  type: string
+      responses:
+        "200":
+          description: Balance item deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  deleted_item:
+                    type: object
+                  item_count:
+                    type: integer
+
   /add_transaction:
     post:
       operationId: addTransaction

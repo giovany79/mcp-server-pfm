@@ -41,6 +41,60 @@ def expenses_by_month_for_category(category: str, year: Optional[int] = None) ->
     return tools.expenses_by_month_for_category(category, year)
 
 @mcp.tool()
+def list_balance_items(
+    snapshot_date: Optional[str] = None,
+    kind: Optional[str] = None,
+    category: Optional[str] = None,
+    limit: Optional[int] = 0
+) -> List[Dict[str, object]]:
+    """List asset and liability items for a balance sheet snapshot."""
+    return tools.list_balance_items(snapshot_date, kind, category, limit)
+
+@mcp.tool()
+def calculate_net_worth(snapshot_date: Optional[str] = None) -> Dict[str, object]:
+    """Calculate assets, liabilities, and net worth for a balance sheet snapshot."""
+    return tools.calculate_net_worth(snapshot_date)
+
+@mcp.tool()
+def net_worth_history() -> List[Dict[str, object]]:
+    """Calculate net worth totals for each available balance sheet snapshot."""
+    return tools.net_worth_history()
+
+@mcp.tool()
+def add_balance_item(
+    name: str,
+    kind: str,
+    amount: float,
+    category: str,
+    snapshot_date: Optional[str] = None,
+    currency: str = "COP",
+    institution: Optional[str] = None,
+    notes: Optional[str] = None
+) -> Dict[str, object]:
+    """Add an asset or liability item to the balance sheet dataset."""
+    return tools.add_balance_item(name, kind, amount, category, snapshot_date, currency, institution, notes)
+
+@mcp.tool()
+def update_balance_item(
+    item_id: str,
+    name: Optional[str] = None,
+    kind: Optional[str] = None,
+    amount: Optional[float] = None,
+    category: Optional[str] = None,
+    snapshot_date: Optional[str] = None,
+    currency: Optional[str] = None,
+    institution: Optional[str] = None,
+    notes: Optional[str] = None
+) -> Dict[str, object]:
+    """Update an existing balance sheet item by item_id."""
+    return tools.update_balance_item(item_id, name, kind, amount, category, snapshot_date, currency, institution, notes)
+
+@mcp.tool()
+def delete_balance_item(item_id: str) -> Dict[str, object]:
+    """Delete an existing balance sheet item by item_id."""
+    return tools.delete_balance_item(item_id)
+
+@mcp.tool()
 def add_transaction(
     description: str,
     transaction_type: str,
@@ -157,6 +211,47 @@ def lambda_handler(event, context):
                 result = tools.expenses_by_month_for_category(
                     category=body.get('category', ''),
                     year=int(body.get('year')) if body.get('year') else None
+                )
+            elif tool_name == 'list_balance_items':
+                raw_limit = body.get('limit', 0)
+                result = tools.list_balance_items(
+                    snapshot_date=body.get('snapshot_date'),
+                    kind=body.get('kind'),
+                    category=body.get('category'),
+                    limit=int(raw_limit) if raw_limit is not None else None
+                )
+            elif tool_name == 'calculate_net_worth':
+                result = tools.calculate_net_worth(
+                    snapshot_date=body.get('snapshot_date')
+                )
+            elif tool_name == 'net_worth_history':
+                result = tools.net_worth_history()
+            elif tool_name == 'add_balance_item':
+                result = tools.add_balance_item(
+                    name=body.get('name', ''),
+                    kind=body.get('kind', ''),
+                    amount=body.get('amount'),
+                    category=body.get('category', ''),
+                    snapshot_date=body.get('snapshot_date'),
+                    currency=body.get('currency', 'COP'),
+                    institution=body.get('institution'),
+                    notes=body.get('notes')
+                )
+            elif tool_name == 'update_balance_item':
+                result = tools.update_balance_item(
+                    item_id=body.get('item_id', ''),
+                    name=body.get('name'),
+                    kind=body.get('kind'),
+                    amount=body.get('amount'),
+                    category=body.get('category'),
+                    snapshot_date=body.get('snapshot_date'),
+                    currency=body.get('currency'),
+                    institution=body.get('institution'),
+                    notes=body.get('notes')
+                )
+            elif tool_name == 'delete_balance_item':
+                result = tools.delete_balance_item(
+                    item_id=body.get('item_id', '')
                 )
             elif tool_name == 'add_transaction':
                 result = tools.add_transaction(

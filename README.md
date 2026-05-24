@@ -39,6 +39,10 @@ This project implements a custom MCP server that bridges the gap between raw fin
   - **`list_transactions`**: Retrieves specific transactions with filters for category, date range, year, month, day, and limit.
   - **`expenses_by_category`**: Aggregates expenses grouped by category for a given year/month.
   - **`expenses_by_month_for_category`**: Aggregates monthly expenses for one category.
+  - **`calculate_net_worth`**: Calculates assets, liabilities, and net worth from balance sheet snapshots.
+  - **`net_worth_history`**: Tracks net worth by snapshot date.
+  - **`list_balance_items`**: Lists assets and liabilities from the latest or selected snapshot.
+  - **`add_balance_item`**, **`update_balance_item`**, **`delete_balance_item`**: Manage balance sheet items in a separate S3 CSV.
   - **`add_transaction`**: Adds a single income or expense.
   - **`add_transactions_batch`**: Adds multiple transactions in one operation, up to 20 per batch.
   - **`update_transaction`**: Updates an existing transaction by `transaction_id`.
@@ -142,6 +146,7 @@ This project uses **AWS SAM** and **GitHub Actions** to deploy a serverless stac
    ```
 
    The Lambda will read and write `pfm-gio.csv` in this bucket. Mutation tools such as `add_transaction`, `update_transaction`, and `delete_transaction` persist changes back to S3.
+   Balance sheet tools read and write `balance-sheet.csv` in the same bucket. If that file does not exist yet, it is created the first time you add a balance item.
 
 ## 💻 Usage
 
@@ -270,7 +275,8 @@ Use `aws-deploy/chatgpt_openapi.yaml` in the ChatGPT Actions console. It is Open
 - All operations are `POST` and require `Content-Type: application/json` and `x-api-key` (when `API_KEY_SECRET` is set).
 - `list_transactions` returns a **JSON array** of transaction objects (not a JSON string).
 - `expenses_by_category` returns a **JSON array** of `{ category, total }`.
-- Mutation operations require a valid payload and persist changes to the backing CSV (`pfm-gio.csv` locally or S3 in AWS).
+- `calculate_net_worth` calculates assets, liabilities, and net worth from `balance-sheet.csv`.
+- Mutation operations require a valid payload and persist changes to the backing CSV (`pfm-gio.csv` for transactions and `balance-sheet.csv` for balance sheet items).
 - Use `instructions.md` as the assistant prompt when connecting a Custom GPT. It includes confirmation requirements before any create, update, or delete operation.
 
 ## 📄 Data Format
@@ -297,6 +303,35 @@ When the server normalizes data, it saves dates as `YYYY-MM-DD` and writes colum
 transaction_id;Description;Income/expensive;Amount;Category;Date
 ```
 
+### Balance Sheet Dataset
+
+AWS deployments also support a semicolon-delimited `balance-sheet.csv` file in the same S3 bucket. It stores dated snapshots of assets and liabilities; net worth is calculated instead of being edited directly.
+
+Required columns:
+
+| Column | Description |
+|--------|-------------|
+| `snapshot_date` | Snapshot date. Normalized to `YYYY-MM-DD` when persisted. |
+| `name` | Asset or liability name. |
+| `kind` | Must be `asset` or `liability`. |
+| `category` | Balance category, such as `cash`, `investments`, `real_estate`, `credit_card`, or `mortgage`. |
+| `amount` | Positive numeric amount. The sign is derived from `kind`. |
+
+Optional but recommended:
+
+| Column | Description |
+|--------|-------------|
+| `item_id` | Stable UUID used for updates and deletes. If missing or empty, it is generated automatically. |
+| `currency` | Currency code. Defaults to `COP`. |
+| `institution` | Bank, broker, lender, or other institution. |
+| `notes` | Free-form notes. |
+
+When the server writes balance sheet data, it uses this order:
+
+```text
+item_id;snapshot_date;name;kind;category;amount;currency;institution;notes
+```
+
 ## Testing
 
 Run the unit test suite with:
@@ -319,6 +354,18 @@ The tests use temporary CSV files and an in-memory fake S3 client, so they do no
   - Returns: List of `{ category, total }` objects (JSON array).
 - **`expenses_by_month_for_category(category, year)`**
   - Returns: List of `{ month, total }` objects.
+- **`list_balance_items(snapshot_date, kind, category, limit)`**
+  - Returns: List of asset/liability items from the requested snapshot, or latest snapshot when no date is provided.
+- **`calculate_net_worth(snapshot_date)`**
+  - Returns: `assets`, `liabilities`, `net_worth`, `item_count`, and the resolved `snapshot_date`.
+- **`net_worth_history()`**
+  - Returns: List of net worth totals grouped by snapshot date.
+- **`add_balance_item(name, kind, amount, category, snapshot_date, currency, institution, notes)`**
+  - Adds an asset or liability to `balance-sheet.csv`.
+- **`update_balance_item(item_id, name, kind, amount, category, snapshot_date, currency, institution, notes)`**
+  - Updates one or more fields on an existing balance sheet item.
+- **`delete_balance_item(item_id)`**
+  - Deletes a balance sheet item and returns the deleted item.
 - **`add_transaction(description, transaction_type, amount, category, date)`**
   - Adds a single transaction and returns the created transaction, including `transaction_id`.
 - **`add_transactions_batch(transactions)`**

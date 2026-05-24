@@ -1,261 +1,1071 @@
 {
-    "openapi": "3.0.1",
-    "info": {
-        "title": "Personal Finance Assistant",
-        "description": "API for analyzing personal financial records from a CSV file.",
-        "version": "1.0.0"
-    },
-    "servers": [
-        {
-            "url": "https://ys32oben10.execute-api.us-east-1.amazonaws.com/Prod/"
-        }
-    ],
-    "paths": {
-        "/tools/calculate_totals": {
-            "post": {
-                "description": "Calculate total income, expenses, and balance for a specific year, month, or category.",
-                "operationId": "calculateTotals",
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "year": {
-                                        "type": "integer",
-                                        "description": "Year to filter by (e.g., 2025)"
-                                    },
-                                    "month": {
-                                        "type": "integer",
-                                        "description": "Month to filter by (1-12)"
-                                    },
-                                    "category": {
-                                        "type": "string",
-                                        "description": "Category to filter by (e.g., 'food', 'restaurant')"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successful calculation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "income": {
-                                            "type": "number"
-                                        },
-                                        "expenses": {
-                                            "type": "number"
-                                        },
-                                        "balance": {
-                                            "type": "number"
-                                        },
-                                        "transaction_count": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/tools/list_transactions": {
-            "post": {
-                "description": "List individual transactions matching specific criteria.",
-                "operationId": "listTransactions",
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "limit": {
-                                        "type": "integer",
-                                        "description": "Max number of transactions to return (default 10). Use 0 or omit to return all.",
-                                        "default": 10
-                                    },
-                                    "category": {
-                                        "type": "string",
-                                        "description": "Category to filter by"
-                                    },
-                                    "start_date": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "description": "Filter transactions on or after this date (YYYY-MM-DD)"
-                                    },
-                                    "end_date": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "description": "Filter transactions on or before this date (YYYY-MM-DD)"
-                                    },
-                                    "year": {
-                                        "type": "integer",
-                                        "description": "Year to filter by"
-                                    },
-                                    "month": {
-                                        "type": "integer",
-                                        "description": "Month to filter by"
-                                    },
-                                    "day": {
-                                        "type": "integer",
-                                        "description": "Day of month to filter by"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "List of transactions",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "Date": {
-                                                "type": "string"
-                                            },
-                                            "Category": {
-                                                "type": "string"
-                                            },
-                                            "Amount": {
-                                                "type": "number"
-                                            },
-                                            "Income/expensive": {
-                                                "type": "string"
-                                            },
-                                            "Description": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/tools/add_transaction": {
-            "post": {
-                "description": "Add a new transaction to the dataset.",
-                "operationId": "addTransaction",
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "required": [
-                                    "description",
-                                    "transaction_type",
-                                    "amount",
-                                    "category"
-                                ],
-                                "properties": {
-                                    "description": {
-                                        "type": "string",
-                                        "description": "Transaction description"
-                                    },
-                                    "transaction_type": {
-                                        "type": "string",
-                                        "description": "Transaction type: income or expensive"
-                                    },
-                                    "amount": {
-                                        "type": "number",
-                                        "description": "Transaction amount (positive number)"
-                                    },
-                                    "category": {
-                                        "type": "string",
-                                        "description": "Category name"
-                                    },
-                                    "date": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "description": "Transaction date (YYYY-MM-DD)"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Transaction added",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "string"
-                                        },
-                                        "transaction": {
-                                            "type": "object",
-                                            "properties": {
-                                                "Description": {
-                                                    "type": "string"
-                                                },
-                                                "Income/expensive": {
-                                                    "type": "string"
-                                                },
-                                                "Amount": {
-                                                    "type": "number"
-                                                },
-                                                "Category": {
-                                                    "type": "string"
-                                                },
-                                                "Date": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "transaction_count": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "components": {
-        "securitySchemes": {
-            "ApiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-api-key"
-            }
-        }
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Personal Finance Manager API",
+    "description": "API for accessing personal financial data via AWS Lambda.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://ys32oben10.execute-api.us-east-1.amazonaws.com/Prod/tools"
     }
+  ],
+  "paths": {
+    "/list_transactions": {
+      "post": {
+        "operationId": "listTransactions",
+        "summary": "List financial transactions",
+        "description": "Retrieves a list of transactions based on filters.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "description": "Maximum number of transactions to return (use 0 or omit to return all)",
+                    "default": 100
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Filter by category name"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Start date for filtering (YYYY-MM-DD)"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "End date for filtering (YYYY-MM-DD)"
+                  },
+                  "year": {
+                    "type": "integer",
+                    "description": "Filter by year"
+                  },
+                  "month": {
+                    "type": "integer",
+                    "description": "Filter by month"
+                  },
+                  "day": {
+                    "type": "integer",
+                    "description": "Filter by day of month"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "transaction_id": {
+                        "type": "string"
+                      },
+                      "Date": {
+                        "type": "string"
+                      },
+                      "Category": {
+                        "type": "string"
+                      },
+                      "Amount": {
+                        "type": "number"
+                      },
+                      "Income/expensive": {
+                        "type": "string"
+                      },
+                      "Description": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calculate_totals": {
+      "post": {
+        "operationId": "calculateTotals",
+        "summary": "Calculate financial totals",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "integer"
+                  },
+                  "month": {
+                    "type": "integer"
+                  },
+                  "category": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful calculation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "income": {
+                      "type": "number"
+                    },
+                    "expenses": {
+                      "type": "number"
+                    },
+                    "balance": {
+                      "type": "number"
+                    },
+                    "transaction_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/expenses_by_category": {
+      "post": {
+        "operationId": "expensesByCategory",
+        "summary": "Calculate expenses grouped by category",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "integer",
+                    "description": "Filter by year"
+                  },
+                  "month": {
+                    "type": "integer",
+                    "description": "Filter by month"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful calculation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "type": "string"
+                      },
+                      "total": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/expenses_by_month_for_category": {
+      "post": {
+        "operationId": "expensesByMonthForCategory",
+        "summary": "Calculate expenses grouped by month for a category",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "description": "Category to filter by"
+                  },
+                  "year": {
+                    "type": "integer",
+                    "description": "Filter by year"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful calculation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "month": {
+                        "type": "integer"
+                      },
+                      "total": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/list_balance_items": {
+      "post": {
+        "operationId": "listBalanceItems",
+        "summary": "List balance sheet items",
+        "description": "Lists assets and liabilities from balance-sheet.csv. If snapshot_date is omitted, the latest snapshot is used.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "snapshot_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Balance sheet snapshot date (YYYY-MM-DD). Defaults to the latest available snapshot."
+                  },
+                  "kind": {
+                    "type": "string",
+                    "description": "Filter by asset or liability.",
+                    "enum": [
+                      "asset",
+                      "liability"
+                    ]
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Filter by balance item category."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Maximum number of items to return. Use 0 or omit to return all.",
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Balance sheet items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "item_id": {
+                        "type": "string"
+                      },
+                      "snapshot_date": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "category": {
+                        "type": "string"
+                      },
+                      "amount": {
+                        "type": "number"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "institution": {
+                        "type": "string"
+                      },
+                      "notes": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calculate_net_worth": {
+      "post": {
+        "operationId": "calculateNetWorth",
+        "summary": "Calculate net worth",
+        "description": "Calculates total assets, liabilities, and net worth from balance-sheet.csv.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "snapshot_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Balance sheet snapshot date (YYYY-MM-DD). Defaults to the latest available snapshot."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Net worth summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "snapshot_date": {
+                      "type": "string"
+                    },
+                    "assets": {
+                      "type": "number"
+                    },
+                    "liabilities": {
+                      "type": "number"
+                    },
+                    "net_worth": {
+                      "type": "number"
+                    },
+                    "item_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/net_worth_history": {
+      "post": {
+        "operationId": "netWorthHistory",
+        "summary": "Calculate net worth history",
+        "description": "Calculates net worth totals for every snapshot date in balance-sheet.csv.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Net worth history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "snapshot_date": {
+                        "type": "string"
+                      },
+                      "assets": {
+                        "type": "number"
+                      },
+                      "liabilities": {
+                        "type": "number"
+                      },
+                      "net_worth": {
+                        "type": "number"
+                      },
+                      "item_count": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/add_balance_item": {
+      "post": {
+        "operationId": "addBalanceItem",
+        "summary": "Add a balance sheet item",
+        "description": "Adds an asset or liability row to balance-sheet.csv.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "kind",
+                  "amount",
+                  "category"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "asset",
+                      "liability"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Positive item amount."
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "snapshot_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Snapshot date (YYYY-MM-DD). Defaults to today if omitted."
+                  },
+                  "currency": {
+                    "type": "string",
+                    "default": "COP"
+                  },
+                  "institution": {
+                    "type": "string"
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Balance item added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "item": {
+                      "type": "object"
+                    },
+                    "item_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update_balance_item": {
+      "post": {
+        "operationId": "updateBalanceItem",
+        "summary": "Update a balance sheet item",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "item_id"
+                ],
+                "properties": {
+                  "item_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "asset",
+                      "liability"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "snapshot_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "institution": {
+                    "type": "string"
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Balance item updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "item": {
+                      "type": "object"
+                    },
+                    "item_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete_balance_item": {
+      "post": {
+        "operationId": "deleteBalanceItem",
+        "summary": "Delete a balance sheet item",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "item_id"
+                ],
+                "properties": {
+                  "item_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Balance item deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "deleted_item": {
+                      "type": "object"
+                    },
+                    "item_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/add_transaction": {
+      "post": {
+        "operationId": "addTransaction",
+        "summary": "Add a new transaction",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "description",
+                  "transaction_type",
+                  "amount",
+                  "category"
+                ],
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "description": "Transaction description"
+                  },
+                  "transaction_type": {
+                    "type": "string",
+                    "description": "Transaction type (income or expensive)"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Transaction amount (positive number)"
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Category name"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Transaction date (YYYY-MM-DD)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "transaction": {
+                      "type": "object",
+                      "properties": {
+                        "transaction_id": {
+                          "type": "string"
+                        },
+                        "Description": {
+                          "type": "string"
+                        },
+                        "Income/expensive": {
+                          "type": "string"
+                        },
+                        "Amount": {
+                          "type": "number"
+                        },
+                        "Category": {
+                          "type": "string"
+                        },
+                        "Date": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "transaction_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/add_transactions_batch": {
+      "post": {
+        "operationId": "addTransactionsBatch",
+        "summary": "Add multiple transactions in a single operation",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "transactions"
+                ],
+                "properties": {
+                  "transactions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "description",
+                        "transaction_type",
+                        "amount",
+                        "category"
+                      ],
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "transaction_type": {
+                          "type": "string",
+                          "description": "income or expensive"
+                        },
+                        "amount": {
+                          "type": "number"
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "date": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Optional; defaults to today if omitted"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch transaction add result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "added_count": {
+                      "type": "integer"
+                    },
+                    "transactions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "transaction_id": {
+                            "type": "string"
+                          },
+                          "Description": {
+                            "type": "string"
+                          },
+                          "Income/expensive": {
+                            "type": "string"
+                          },
+                          "Amount": {
+                            "type": "number"
+                          },
+                          "Category": {
+                            "type": "string"
+                          },
+                          "Date": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "transaction_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update_transaction": {
+      "post": {
+        "operationId": "updateTransaction",
+        "summary": "Update an existing transaction",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "transaction_id"
+                ],
+                "properties": {
+                  "transaction_id": {
+                    "type": "string",
+                    "description": "Stable transaction identifier"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Updated description"
+                  },
+                  "transaction_type": {
+                    "type": "string",
+                    "description": "Updated transaction type (income or expensive)"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Updated amount (positive number)"
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Updated category"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Updated transaction date (YYYY-MM-DD)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "transaction": {
+                      "type": "object",
+                      "properties": {
+                        "transaction_id": {
+                          "type": "string"
+                        },
+                        "Description": {
+                          "type": "string"
+                        },
+                        "Income/expensive": {
+                          "type": "string"
+                        },
+                        "Amount": {
+                          "type": "number"
+                        },
+                        "Category": {
+                          "type": "string"
+                        },
+                        "Date": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "transaction_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete_transaction": {
+      "post": {
+        "operationId": "deleteTransaction",
+        "summary": "Delete a transaction",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "transaction_id"
+                ],
+                "properties": {
+                  "transaction_id": {
+                    "type": "string",
+                    "description": "Stable transaction identifier"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "deleted_transaction": {
+                      "type": "object",
+                      "properties": {
+                        "transaction_id": {
+                          "type": "string"
+                        },
+                        "Description": {
+                          "type": "string"
+                        },
+                        "Income/expensive": {
+                          "type": "string"
+                        },
+                        "Amount": {
+                          "type": "number"
+                        },
+                        "Category": {
+                          "type": "string"
+                        },
+                        "Date": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "transaction_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    }
+  }
 }

@@ -3,3 +3,4 @@ mcp[cli]
 azure-ai-inference
 python-dotenv
 pandas
+playwright

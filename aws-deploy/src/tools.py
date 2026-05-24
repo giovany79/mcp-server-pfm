@@ -5,6 +5,25 @@ import os
 from datetime import datetime
 from typing import Optional, Dict, List, Any
 import uuid
+import re
+
+
+ISO_DATE_PATTERN = re.compile(r"^\d{4}[-/]\d{1,2}[-/]\d{1,2}(?:[ T].*)?$")
+
+
+def parse_date_value(value: Any, errors: str = "coerce") -> pd.Timestamp:
+    text = str(value).strip()
+    if ISO_DATE_PATTERN.match(text):
+        return pd.to_datetime(value, format="mixed", yearfirst=True, errors=errors)
+    return pd.to_datetime(value, format="mixed", dayfirst=True, errors=errors)
+
+
+def parse_date_series(series: pd.Series) -> pd.Series:
+    parsed = pd.to_datetime(series, format="mixed", dayfirst=True, errors="coerce")
+    iso_mask = series.astype("string").str.strip().str.match(ISO_DATE_PATTERN, na=False)
+    if iso_mask.any():
+        parsed.loc[iso_mask] = pd.to_datetime(series.loc[iso_mask], format="mixed", yearfirst=True, errors="coerce")
+    return parsed
 
 class FinanceTools:
     def __init__(self):
@@ -30,12 +49,12 @@ class FinanceTools:
         if missing_required:
             raise ValueError(f"Missing required columns: {sorted(missing_required)}")
 
-        if df["Amount"].dtype == "object":
+        if not pd.api.types.is_numeric_dtype(df["Amount"]):
             df["Amount"] = df["Amount"].astype(str).str.replace(r"[$. ]", "", regex=True)
         df["Amount"] = pd.to_numeric(df["Amount"], errors="coerce")
         df = df.dropna(subset=["Amount"])
 
-        df["Date"] = pd.to_datetime(df["Date"], format="mixed", dayfirst=True, errors="coerce")
+        df["Date"] = parse_date_series(df["Date"])
         df = df.dropna(subset=["Date"])
 
         if self.id_column not in df.columns:
@@ -117,7 +136,7 @@ class FinanceTools:
 
         if date:
             try:
-                parsed_date = pd.to_datetime(date, format="mixed", dayfirst=True, errors="raise")
+                parsed_date = parse_date_value(date, errors="raise")
             except (TypeError, ValueError):
                 raise ValueError("Date must be a valid date string")
         else:
@@ -349,7 +368,7 @@ class FinanceTools:
 
         if date is not None:
             try:
-                parsed_date = pd.to_datetime(date, format="mixed", dayfirst=True, errors="raise")
+                parsed_date = parse_date_value(date, errors="raise")
             except (TypeError, ValueError):
                 raise ValueError("Date must be a valid date string")
             df.at[idx, "Date"] = parsed_date

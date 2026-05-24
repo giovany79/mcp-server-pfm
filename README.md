@@ -14,6 +14,7 @@ Now supports **AWS Serverless Deployment** for accessing financial tools via a s
 - [AWS Deployment](#aws-deployment)
 - [Usage](#usage)
 - [Data Format](#data-format)
+- [Testing](#testing)
 - [Tools & Resources](#tools--resources)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
@@ -295,6 +296,16 @@ When the server normalizes data, it saves dates as `YYYY-MM-DD` and writes colum
 ```text
 transaction_id;Description;Income/expensive;Amount;Category;Date
 ```
+
+## Testing
+
+Run the unit test suite with:
+
+```bash
+python -m unittest discover -v
+```
+
+The tests use temporary CSV files and an in-memory fake S3 client, so they do not mutate `pfm-gio.csv` or call AWS.
 
 ## 🛠️ Tools & Resources
 
